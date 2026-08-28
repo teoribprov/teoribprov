@@ -209,6 +209,7 @@
             .hero-text h2 { font-size: 22px; } 
             .hero-stats { flex-wrap: wrap; gap: 15px; } 
             .stats-grid { grid-template-columns: repeat(2, 1fr); } 
+            .pin-box { padding: 30px 20px; } 
             .pin-box .pin-input-group input { width: 32px; height: 42px; font-size: 16px; } 
             .admin-modal .add-user-section .add-user-form { flex-direction: column; } 
             .admin-modal .add-user-section .add-user-form input { width: 100%; } 
@@ -432,9 +433,11 @@
         let cachedDevices = null;
         let cachedStats = {};
 
+        // ============================================
+        // getUsers - TANI GJITHMONË MERR NGA FIREBASE!
+        // ============================================
         async function getUsers() {
-            if (cachedUsers) return cachedUsers;
-            
+            // Gjithmonë merr të dhënat nga Firebase, jo nga cache
             const users = await loadUsersFromFirebase();
             if (users && Object.keys(users).length > 0) {
                 if (!users[ADMIN_ID]) {
@@ -1170,7 +1173,11 @@
             document.getElementById('adminModal').classList.remove('active');
         }
 
+        // ============================================
+        // renderUserList - TANI RIFRESKON GJITHMONË
+        // ============================================
         async function renderUserList() {
+            // Gjithmonë merr të dhënat e freskëta nga Firebase
             const users = await getUsers();
             const list = document.getElementById('userList');
             list.innerHTML = '';
@@ -1370,6 +1377,9 @@
             }
         }
 
+        // ============================================
+        // shtoPerdorues - TANI PËRDITËSON CACHE-IN
+        // ============================================
         async function shtoPerdorues() {
             const nameInput = document.getElementById('newUserName');
             const pinInput = document.getElementById('newUserPin');
@@ -1414,8 +1424,11 @@
                 locked: false,
                 attempts: 0
             };
-            await saveUsers(users);
-
+            
+            // Ruaj në Firebase dhe përditëso cache-in
+            await saveUsersToFirebase(users);
+            cachedUsers = users; // ← PËRDITËSO CACHE-IN!
+            
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let prefix = name.substring(0, 3).toUpperCase();
             let code = prefix;
@@ -1432,6 +1445,7 @@
                 roli: 'user'
             };
             await saveDeviceUsers(deviceUsers);
+            cachedDevices = deviceUsers; // ← PËRDITËSO CACHE-IN!
             
             nameInput.value = '';
             pinInput.value = '';
