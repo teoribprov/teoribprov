@@ -101,7 +101,7 @@
 
             // Kontrollo në Firebase
             const database = firebase.database();
-            database.ref('users').once('value')
+            database.ref('user').once('value')
                 .then(snapshot => {
                     const users = snapshot.val() || {};
                     let found = false;
