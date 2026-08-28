@@ -318,7 +318,7 @@
         
         async function loadUsersFromFirebase() {
             try {
-                const snapshot = await database.ref('users').once('value');
+                const snapshot = await database.ref('user').once('value');
                 return snapshot.val() || {};
             } catch (e) {
                 console.error('Gabim në ngarkimin e përdoruesve:', e);
@@ -328,7 +328,7 @@
 
         async function saveUsersToFirebase(users) {
             try {
-                await database.ref('users').set(users);
+                await database.ref('user').set(users);
                 return true;
             } catch (e) {
                 console.error('Gabim në ruajtjen e përdoruesve:', e);
