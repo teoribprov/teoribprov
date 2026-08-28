@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testet e Patentë-Shoferit</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    
     <script src="security.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -19,10 +28,8 @@
         .pin-box .pin-input-group input { width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: 700; border: 2px solid #d0d7de; border-radius: 10px; outline: none; transition: border 0.3s, box-shadow 0.3s; background: #f8f9fa; color: #003057; }
         .pin-box .pin-input-group input:focus { border-color: #003057; box-shadow: 0 0 0 4px rgba(0,48,87,0.15); }
         .pin-box .pin-input-group input.error { border-color: #dc3545; animation: shake 0.4s ease; }
-        .pin-box .pin-input-group input:disabled { background: #e9ecef; cursor: not-allowed; opacity: 0.6; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .pin-box .pin-error { color: #dc3545; font-size: 13px; min-height: 20px; margin-bottom: 12px; }
-        .pin-box .pin-error.warning { color: #e67e22; }
         .pin-box .user-info { font-size: 13px; color: #6b7a8a; margin-top: 10px; min-height: 20px; }
         .pin-box .user-info.locked { color: #dc3545; font-weight: 600; }
         .session-timer { position: fixed; bottom: 20px; right: 20px; background: rgba(0,48,87,0.85); color: white; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: none; align-items: center; gap: 8px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
@@ -78,11 +85,10 @@
         .stat-item .stat-prov { font-size: 10px; font-weight: 700; color: #003057; }
         .stat-item .stat-count { font-size: 14px; font-weight: 700; color: #003057; }
         .stat-item .stat-label { font-size: 8px; color: #6b7a8a; }
-        .stat-item .stat-time { font-size: 8px; color: #6b7a8a; margin-top: 1px; border-top: 1px dashed #e8edf2; padding-top: 2px; }
         .stat-item .stat-total-time { font-size: 10px; font-weight: 600; color: #003057; margin-top: 1px; }
         .stat-item .stat-bar { width: 100%; height: 2px; background: #e8edf2; border-radius: 2px; margin-top: 3px; overflow: hidden; }
         .stat-item .stat-bar .bar-fill { height: 100%; background: #003057; border-radius: 2px; transition: width 0.6s ease; width: 0%; }
-        .stat-item .stat-user { font-size: 8px; color: #6b7a8a; margin-top: 1px; background: #e8edf2; padding: 1px 6px; border-radius: 10px; display: inline-block; }
+        .stat-item .stat-time { font-size: 8px; color: #6b7a8a; margin-top: 1px; border-top: 1px dashed #e8edf2; padding-top: 2px; }
         .stat-item.popular { background: #e8f0fe; border-color: #003057; }
         .stat-item .stat-star { font-size: 9px; margin-left: 2px; }
         .footer { background: #003057; color: white; padding: 30px 20px; margin-top: 50px; text-align: center; }
@@ -91,6 +97,7 @@
         .footer .footer-links { display: flex; justify-content: center; gap: 30px; margin-top: 12px; flex-wrap: wrap; }
         .footer .footer-links a { color: white; text-decoration: none; font-size: 14px; opacity: 0.8; transition: opacity 0.3s; }
         .footer .footer-links a:hover { opacity: 1; }
+        .admin-link { cursor: pointer; }
         .admin-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .admin-modal-overlay.active { display: flex; }
         .admin-modal { background: white; padding: 30px 35px; border-radius: 16px; max-width: 650px; width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalIn 0.3s ease; }
@@ -151,16 +158,15 @@
         .device-row .device-status { font-size: 11px; font-weight: 600; color: #28a745; }
         .device-row .device-status.current { color: #003057; background: #e8f0fe; padding: 2px 10px; border-radius: 12px; }
         .device-empty { color: #6b7a8a; font-size: 13px; padding: 10px 14px; text-align: center; }
-        @media (max-width: 768px) { .header-content { flex-direction: column; gap: 15px; text-align: center; } .hero { flex-direction: column; text-align: center; padding: 30px 20px; } .hero-text p { max-width: 100%; } .hero-stats { gap: 20px; padding: 15px 20px; width: 100%; justify-content: center; } .hero-stats .stat .number { font-size: 24px; } .prov-grid { grid-template-columns: 1fr; } .header-right { width: 100%; justify-content: center; } .stats-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); } .pin-box { padding: 30px 20px; } .pin-box .pin-input-group input { width: 38px; height: 48px; font-size: 20px; } .admin-modal { padding: 20px; } .admin-modal .user-row { flex-direction: column; align-items: stretch; } .admin-modal .user-row .user-actions { justify-content: flex-start; } }
-        @media (max-width: 480px) { .header-title h1 { font-size: 18px; } .hero-text h2 { font-size: 22px; } .hero-stats { flex-wrap: wrap; gap: 15px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .pin-box .pin-input-group input { width: 32px; height: 42px; font-size: 16px; } .admin-modal .add-user-section .add-user-form { flex-direction: column; } .admin-modal .add-user-section .add-user-form input { width: 100%; } .session-timer { font-size: 10px; padding: 5px 12px; bottom: 10px; right: 10px; } }
         .toast { position: fixed; bottom: 30px; right: 30px; background: #003057; color: white; padding: 14px 24px; border-radius: 10px; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.5s ease; z-index: 999; }
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.error { background: #dc3545; }
         .toast.warning { background: #e67e22; }
         .toast.success { background: #28a745; }
-        .admin-link { cursor: pointer; }
-        .watermark { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: rgba(0,48,87,0.08); font-size: 12px; font-weight: 600; letter-spacing: 2px; pointer-events: none; z-index: 0; text-transform: uppercase; font-family: 'Courier New', monospace; }
+        .watermark { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: rgba(0,48,87,0.08); font-size: 12px; font-weight: 600; letter-spacing: 2px; pointer-events: none; z-index: 0; text-transform: uppercase; font-family: 'Courier New', monospace; display: none; }
         .watermark.show { display: block; }
+        @media (max-width: 768px) { .header-content { flex-direction: column; gap: 15px; text-align: center; } .hero { flex-direction: column; text-align: center; padding: 30px 20px; } .hero-text p { max-width: 100%; } .hero-stats { gap: 20px; padding: 15px 20px; width: 100%; justify-content: center; } .hero-stats .stat .number { font-size: 24px; } .prov-grid { grid-template-columns: 1fr; } .header-right { width: 100%; justify-content: center; } .stats-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); } .pin-box { padding: 30px 20px; } .pin-box .pin-input-group input { width: 38px; height: 48px; font-size: 20px; } .admin-modal { padding: 20px; } .admin-modal .user-row { flex-direction: column; align-items: stretch; } .admin-modal .user-row .user-actions { justify-content: flex-start; } }
+        @media (max-width: 480px) { .header-title h1 { font-size: 18px; } .hero-text h2 { font-size: 22px; } .hero-stats { flex-wrap: wrap; gap: 15px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .pin-box .pin-input-group input { width: 32px; height: 42px; font-size: 16px; } .admin-modal .add-user-section .add-user-form { flex-direction: column; } .admin-modal .add-user-section .add-user-form input { width: 100%; } .session-timer { font-size: 10px; padding: 5px 12px; bottom: 10px; right: 10px; } }
     </style>
 </head>
 <body>
@@ -232,6 +238,7 @@
                 <h3 id="statsTitle">📊 Statistikat e hapjeve <span>(ruhen përgjithmonë)</span></h3>
                 <div class="stats-actions">
                     <button onclick="refreshStats()">🔄 Rifresko</button>
+                    <button onclick="syncData()" style="background:#28a745;color:white;">☁️ Sinkronizo</button>
                 </div>
             </div>
             <div class="stats-grid" id="statsGrid"></div>
@@ -279,6 +286,16 @@
         </div>
     </div>
 
+    <div id="clearDataBtn" style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: none;">
+        <button onclick="pastroGjithcka()" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer; opacity:0.4; transition:opacity 0.3s;" 
+                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'">🗑️ Pastro</button>
+    </div>
+
+    <div id="testPhoneBtn" style="position: fixed; bottom: 60px; left: 10px; z-index: 9999; display: none;">
+        <button onclick="testPhoneFingerprint()" style="padding:6px 12px; background:#28a745; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer; opacity:0.4; transition:opacity 0.3s;" 
+                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'">📱 Test Phone</button>
+    </div>
+
     <script>
         // ============================================
         // KONSTANTET
@@ -289,6 +306,178 @@
         const MAX_ATTEMPTS = 3;
         const SESSION_TIMEOUT = 5 * 60 * 1000;
         const MAX_PAJISJE_PER_PERDORUES = 2;
+
+        // ============================================
+        // FIREBASE - REFERENCA
+        // ============================================
+        const database = firebase.database();
+
+        // ============================================
+        // FUNKSIONET FIREBASE
+        // ============================================
+        
+        async function loadUsersFromFirebase() {
+            try {
+                const snapshot = await database.ref('users').once('value');
+                return snapshot.val() || {};
+            } catch (e) {
+                console.error('Gabim në ngarkimin e përdoruesve:', e);
+                return null;
+            }
+        }
+
+        async function saveUsersToFirebase(users) {
+            try {
+                await database.ref('users').set(users);
+                return true;
+            } catch (e) {
+                console.error('Gabim në ruajtjen e përdoruesve:', e);
+                return false;
+            }
+        }
+
+        async function loadStatsFromFirebase(userId) {
+            try {
+                const snapshot = await database.ref('stats/' + userId).once('value');
+                return snapshot.val() || {};
+            } catch (e) {
+                console.error('Gabim në ngarkimin e statistikave:', e);
+                return null;
+            }
+        }
+
+        async function saveStatsToFirebase(userId, stats) {
+            try {
+                await database.ref('stats/' + userId).set(stats);
+                return true;
+            } catch (e) {
+                console.error('Gabim në ruajtjen e statistikave:', e);
+                return false;
+            }
+        }
+
+        async function loadDevicesFromFirebase() {
+            try {
+                const snapshot = await database.ref('devices').once('value');
+                return snapshot.val() || {};
+            } catch (e) {
+                console.error('Gabim në ngarkimin e pajisjeve:', e);
+                return null;
+            }
+        }
+
+        async function saveDevicesToFirebase(devices) {
+            try {
+                await database.ref('devices').set(devices);
+                return true;
+            } catch (e) {
+                console.error('Gabim në ruajtjen e pajisjeve:', e);
+                return false;
+            }
+        }
+
+        // ============================================
+        // FUNKSIONET KRYESORE
+        // ============================================
+        
+        let cachedUsers = null;
+        let cachedDevices = null;
+        let cachedStats = {};
+
+        async function getUsers() {
+            if (cachedUsers) return cachedUsers;
+            
+            const users = await loadUsersFromFirebase();
+            if (users && Object.keys(users).length > 0) {
+                if (!users[ADMIN_ID]) {
+                    users[ADMIN_ID] = { 
+                        name: 'Admin', 
+                        pin: ADMIN_PIN, 
+                        avatar: 'A', 
+                        count: 0, 
+                        totalSeconds: 0, 
+                        lastTime: null, 
+                        locked: false, 
+                        attempts: 0 
+                    };
+                    await saveUsersToFirebase(users);
+                }
+                cachedUsers = users;
+                return users;
+            }
+            
+            const defaultUsers = {
+                admin: { 
+                    name: 'Admin', 
+                    pin: ADMIN_PIN, 
+                    avatar: 'A', 
+                    count: 0, 
+                    totalSeconds: 0, 
+                    lastTime: null, 
+                    locked: false, 
+                    attempts: 0 
+                }
+            };
+            await saveUsersToFirebase(defaultUsers);
+            cachedUsers = defaultUsers;
+            return defaultUsers;
+        }
+
+        async function saveUsers(users) {
+            cachedUsers = users;
+            return await saveUsersToFirebase(users);
+        }
+
+        async function getDeviceUsers() {
+            if (cachedDevices) return cachedDevices;
+            
+            const devices = await loadDevicesFromFirebase();
+            if (devices && Object.keys(devices).length > 0) {
+                cachedDevices = devices;
+                return devices;
+            }
+            
+            const defaultDevices = {
+                'ADM2026': {
+                    emri: 'Admin',
+                    pin: ADMIN_PIN,
+                    kod: 'ADM2026',
+                    pajisje: [],
+                    maxPajisje: 3,
+                    roli: 'admin'
+                }
+            };
+            await saveDevicesToFirebase(defaultDevices);
+            cachedDevices = defaultDevices;
+            return defaultDevices;
+        }
+
+        async function saveDeviceUsers(devices) {
+            cachedDevices = devices;
+            return await saveDevicesToFirebase(devices);
+        }
+
+        async function getStats() {
+            const userId = currentUserId || 'admin';
+            if (cachedStats[userId]) return cachedStats[userId];
+            
+            const stats = await loadStatsFromFirebase(userId);
+            if (stats && Object.keys(stats).length > 0) {
+                cachedStats[userId] = stats;
+                return stats;
+            }
+            
+            const emptyStats = {};
+            await saveStatsToFirebase(userId, emptyStats);
+            cachedStats[userId] = emptyStats;
+            return emptyStats;
+        }
+
+        async function saveStats(stats, userId) {
+            const id = userId || currentUserId || 'admin';
+            cachedStats[id] = stats;
+            return await saveStatsToFirebase(id, stats);
+        }
 
         // ============================================
         // FINGERPRINT
@@ -338,76 +527,15 @@
         }
 
         // ============================================
-        // PËRDORUESIT
+        // PËRDORUESIT DHE SESSION
         // ============================================
-        function getUsers() {
-            try {
-                const data = localStorage.getItem('appUsers');
-                if (data) {
-                    const parsed = JSON.parse(data);
-                    if (!parsed[ADMIN_ID]) {
-                        parsed[ADMIN_ID] = { name: 'Admin', pin: ADMIN_PIN, avatar: 'A', count: 0, totalSeconds: 0, lastTime: null, locked: false, attempts: 0 };
-                        saveUsers(parsed);
-                    }
-                    return parsed;
-                }
-            } catch {}
-            return {
-                admin: { name: 'Admin', pin: ADMIN_PIN, avatar: 'A', count: 0, totalSeconds: 0, lastTime: null, locked: false, attempts: 0 }
-            };
-        }
-
-        function saveUsers(users) {
-            localStorage.setItem('appUsers', JSON.stringify(users));
-        }
-
-        // ============================================
-        // PAJISJET
-        // ============================================
-        function getDeviceUsers() {
-            try {
-                const data = localStorage.getItem('deviceUsers');
-                if (data) {
-                    return JSON.parse(data);
-                }
-            } catch {}
-            return {};
-        }
-
-        function saveDeviceUsers(deviceUsers) {
-            localStorage.setItem('deviceUsers', JSON.stringify(deviceUsers));
-        }
-
-        // ============================================
-        // STATISTIKAT
-        // ============================================
-        function getStatsKey() {
-            if (isAdmin()) return 'provStats_all';
-            return 'provStats_' + currentUserId;
-        }
-
-        function getStats() {
-            const key = getStatsKey();
-            try { 
-                const data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : {}; 
-            } catch { 
-                return {}; 
-            }
-        }
-
-        function saveStats(stats) {
-            const key = getStatsKey();
-            localStorage.setItem(key, JSON.stringify(stats));
-        }
-
-        function formatTime(seconds) {
-            if (seconds < 60) return `${seconds} sek`;
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            if (hrs > 0) return `${hrs} orë ${mins} min`;
-            return `${mins} min`;
-        }
+        let currentUserId = null;
+        let currentUserData = null;
+        let inactivityTimer = null;
+        let sessionCountdown = SESSION_TIMEOUT / 1000;
+        let countdownInterval = null;
+        let isProcessing = false;
+        let pinValue = [];
 
         function isAdmin() {
             if (!currentUserId || !currentUserData) return false;
@@ -477,14 +605,6 @@
         const userInfo = document.getElementById('userInfo');
         const lockIcon = document.getElementById('lockIcon');
 
-        let currentUserId = null;
-        let currentUserData = null;
-        let inactivityTimer = null;
-        let sessionCountdown = SESSION_TIMEOUT / 1000;
-        let countdownInterval = null;
-        let isProcessing = false;
-        let pinValue = [];
-
         function clearPinError() {
             pinError.textContent = '';
             pinError.className = 'pin-error';
@@ -550,151 +670,156 @@
         });
 
         // ============================================
-        // VERIFIKO PIN
+        // VERIFIKO PIN (ME FIREBASE)
         // ============================================
-        function verifikoPin() {
+        async function verifikoPin() {
             if (isProcessing) return;
             const fullPin = updatePinValue();
             if (fullPin.length !== PIN_GJATESIA) return;
 
             isProcessing = true;
 
-            const users = getUsers();
-            let foundUser = null;
-            let foundId = null;
+            try {
+                const users = await getUsers();
+                let foundUser = null;
+                let foundId = null;
 
-            for (const [id, data] of Object.entries(users)) {
-                if (data.pin === fullPin) {
-                    foundUser = data;
-                    foundId = id;
-                    break;
+                for (const [id, data] of Object.entries(users)) {
+                    if (data.pin === fullPin) {
+                        foundUser = data;
+                        foundId = id;
+                        break;
+                    }
                 }
-            }
 
-            if (!foundUser) {
-                showPinError('❌ PIN i gabuar!');
-                resetPinInputs();
-                isProcessing = false;
-                return;
-            }
-
-            if (foundId !== ADMIN_ID && foundUser.locked === true) {
-                showUserInfo('🔒 Përdoruesi është i bllokuar! Kontaktoni Admin-in.', 'locked');
-                pinInputs.forEach(input => input.disabled = true);
-                lockIcon.textContent = '🔒';
-                showToast('⛔ Përdoruesi ' + foundUser.name + ' është i bllokuar!', 'error');
-                isProcessing = false;
-                return;
-            }
-
-            const deviceUsers = getDeviceUsers();
-            let userCode = null;
-            let deviceData = null;
-            
-            for (const [code, data] of Object.entries(deviceUsers)) {
-                if (data.emri === foundUser.name) {
-                    userCode = code;
-                    deviceData = data;
-                    break;
+                if (!foundUser) {
+                    showPinError('❌ PIN i gabuar!');
+                    resetPinInputs();
+                    isProcessing = false;
+                    return;
                 }
-            }
 
-            if (!userCode) {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                let prefix = foundUser.name.substring(0, 3).toUpperCase();
-                let newCode = prefix;
-                for (let i = 0; i < 4; i++) {
-                    newCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                if (foundId !== ADMIN_ID && foundUser.locked === true) {
+                    showUserInfo('🔒 Përdoruesi është i bllokuar! Kontaktoni Admin-in.', 'locked');
+                    pinInputs.forEach(input => input.disabled = true);
+                    lockIcon.textContent = '🔒';
+                    showToast('⛔ Përdoruesi ' + foundUser.name + ' është i bllokuar!', 'error');
+                    isProcessing = false;
+                    return;
                 }
-                while (deviceUsers[newCode]) {
-                    newCode = prefix;
+
+                const deviceUsers = await getDeviceUsers();
+                let userCode = null;
+                let deviceData = null;
+                
+                for (const [code, data] of Object.entries(deviceUsers)) {
+                    if (data.emri === foundUser.name) {
+                        userCode = code;
+                        deviceData = data;
+                        break;
+                    }
+                }
+
+                if (!userCode) {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    let prefix = foundUser.name.substring(0, 3).toUpperCase();
+                    let newCode = prefix;
                     for (let i = 0; i < 4; i++) {
                         newCode += chars.charAt(Math.floor(Math.random() * chars.length));
                     }
+                    while (deviceUsers[newCode]) {
+                        newCode = prefix;
+                        for (let i = 0; i < 4; i++) {
+                            newCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                    }
+                    deviceUsers[newCode] = {
+                        emri: foundUser.name,
+                        pin: foundUser.pin,
+                        kod: newCode,
+                        pajisje: [],
+                        maxPajisje: foundId === ADMIN_ID ? 3 : MAX_PAJISJE_PER_PERDORUES,
+                        roli: foundId === ADMIN_ID ? 'admin' : 'user'
+                    };
+                    userCode = newCode;
+                    deviceData = deviceUsers[newCode];
+                    await saveDeviceUsers(deviceUsers);
+                    console.log('✅ Kod i krijuar për ' + foundUser.name + ': ' + newCode);
                 }
-                deviceUsers[newCode] = {
-                    emri: foundUser.name,
-                    pin: foundUser.pin,
-                    kod: newCode,
-                    pajisje: [],
-                    maxPajisje: foundId === ADMIN_ID ? 3 : MAX_PAJISJE_PER_PERDORUES,
-                    roli: foundId === ADMIN_ID ? 'admin' : 'user'
-                };
-                userCode = newCode;
-                deviceData = deviceUsers[newCode];
-                saveDeviceUsers(deviceUsers);
-                console.log('✅ Kod i krijuar për ' + foundUser.name + ': ' + newCode);
-            }
 
-            const fingerprint = getCurrentFingerprint();
-            if (!deviceData.pajisje) deviceData.pajisje = [];
+                const fingerprint = getCurrentFingerprint();
+                if (!deviceData.pajisje) deviceData.pajisje = [];
 
-            if (!deviceData.pajisje.includes(fingerprint)) {
-                if (foundId === ADMIN_ID) {
-                    if (deviceData.pajisje.length < deviceData.maxPajisje) {
+                if (!deviceData.pajisje.includes(fingerprint)) {
+                    if (foundId === ADMIN_ID) {
+                        if (deviceData.pajisje.length < deviceData.maxPajisje) {
+                            deviceData.pajisje.push(fingerprint);
+                            await saveDeviceUsers(deviceUsers);
+                            showToast(`✅ Pajisja e Admin-it u regjistrua!`, 'success');
+                        }
+                        localStorage.setItem('user_auth_code', userCode);
+                        localStorage.setItem('user_device_id', fingerprint);
+                    } else {
+                        if (deviceData.pajisje.length >= deviceData.maxPajisje) {
+                            showUserInfo(`❌ Maksimumi i pajisjeve (${deviceData.maxPajisje})! Kontaktoni Admin-in.`, 'locked');
+                            pinInputs.forEach(input => input.disabled = true);
+                            lockIcon.textContent = '🔒';
+                            showToast(`❌ Maksimumi ${deviceData.maxPajisje} pajisje!`, 'error');
+                            isProcessing = false;
+                            return;
+                        }
                         deviceData.pajisje.push(fingerprint);
-                        saveDeviceUsers(deviceUsers);
-                        showToast(`✅ Pajisja e Admin-it u regjistrua!`, 'success');
+                        await saveDeviceUsers(deviceUsers);
+                        localStorage.setItem('user_auth_code', userCode);
+                        localStorage.setItem('user_device_id', fingerprint);
+                        showToast(`✅ Pajisja u regjistrua! (${deviceData.pajisje.length}/${deviceData.maxPajisje})`, 'success');
                     }
-                    localStorage.setItem('user_auth_code', userCode);
-                    localStorage.setItem('user_device_id', fingerprint);
                 } else {
-                    if (deviceData.pajisje.length >= deviceData.maxPajisje) {
-                        showUserInfo(`❌ Maksimumi i pajisjeve (${deviceData.maxPajisje})! Kontaktoni Admin-in.`, 'locked');
-                        pinInputs.forEach(input => input.disabled = true);
-                        lockIcon.textContent = '🔒';
-                        showToast(`❌ Maksimumi ${deviceData.maxPajisje} pajisje!`, 'error');
-                        isProcessing = false;
-                        return;
-                    }
-                    deviceData.pajisje.push(fingerprint);
-                    saveDeviceUsers(deviceUsers);
                     localStorage.setItem('user_auth_code', userCode);
                     localStorage.setItem('user_device_id', fingerprint);
-                    showToast(`✅ Pajisja u regjistrua! (${deviceData.pajisje.length}/${deviceData.maxPajisje})`, 'success');
                 }
-            } else {
-                localStorage.setItem('user_auth_code', userCode);
-                localStorage.setItem('user_device_id', fingerprint);
+
+                const now = new Date();
+                const timeStr = now.toLocaleString('sq-AL', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+                foundUser.count = (foundUser.count || 0) + 1;
+                foundUser.lastTime = timeStr;
+                foundUser._sessionStart = Date.now();
+                if (foundId !== ADMIN_ID) foundUser.attempts = 0;
+
+                users[foundId] = foundUser;
+                await saveUsers(users);
+
+                currentUserId = foundId;
+                currentUserData = foundUser;
+
+                pinOverlay.classList.add('hidden');
+                resetPinInputs();
+                lockIcon.textContent = '🔐';
+                document.body.focus();
+
+                document.getElementById('userName').textContent = foundUser.name;
+                document.getElementById('userAvatar').textContent = foundUser.avatar || foundUser.name.charAt(0).toUpperCase();
+
+                updateStatsTitle();
+                document.getElementById('watermark').classList.add('show');
+                showToast('✅ Mirë se vini, ' + foundUser.name + '!', 'success');
+                
+                resetInactivityTimer();
+                
+                setTimeout(function() {
+                    kontrolloTeGjithaKohet();
+                    renderProvat();
+                    renderStats();
+                }, 200);
+
+            } catch (error) {
+                console.error('Gabim në verifikimin e PIN:', error);
+                showPinError('❌ Gabim serveri! Provoni përsëri.');
             }
-
-            const now = new Date();
-            const timeStr = now.toLocaleString('sq-AL', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-
-            foundUser.count = (foundUser.count || 0) + 1;
-            foundUser.lastTime = timeStr;
-            foundUser._sessionStart = Date.now();
-            if (foundId !== ADMIN_ID) foundUser.attempts = 0;
-
-            users[foundId] = foundUser;
-            saveUsers(users);
-
-            currentUserId = foundId;
-            currentUserData = foundUser;
-
-            pinOverlay.classList.add('hidden');
-            resetPinInputs();
-            lockIcon.textContent = '🔐';
-            document.body.focus();
-
-            document.getElementById('userName').textContent = foundUser.name;
-            document.getElementById('userAvatar').textContent = foundUser.avatar || foundUser.name.charAt(0).toUpperCase();
-
-            updateStatsTitle();
-            document.getElementById('watermark').classList.add('show');
-            showToast('✅ Mirë se vini, ' + foundUser.name + '!', 'success');
-            
-            resetInactivityTimer();
-            
-            setTimeout(function() {
-                const changed = kontrolloTeGjithaKohet();
-                renderProvat();
-                renderStats();
-                if (changed) showToast('⏱️ Koha u regjistrua!', 'success');
-            }, 200);
             
             isProcessing = false;
         }
@@ -710,12 +835,13 @@
             if (currentUserId && currentUserData && currentUserData._sessionStart) {
                 const elapsed = Math.floor((Date.now() - currentUserData._sessionStart) / 1000);
                 if (elapsed >= 3) {
-                    const users = getUsers();
-                    if (users[currentUserId]) {
-                        users[currentUserId].totalSeconds = (users[currentUserId].totalSeconds || 0) + elapsed;
-                        saveUsers(users);
-                        currentUserData = users[currentUserId];
-                    }
+                    getUsers().then(users => {
+                        if (users[currentUserId]) {
+                            users[currentUserId].totalSeconds = (users[currentUserId].totalSeconds || 0) + elapsed;
+                            saveUsers(users);
+                            currentUserData = users[currentUserId];
+                        }
+                    });
                 }
             }
 
@@ -744,73 +870,22 @@
         window.kycuPerseri = kycuPerseri;
 
         // ============================================
-        // FSHIRJA E PAJISJEVE
-        // ============================================
-        function fshijPajisje(userCode, deviceFingerprint) {
-            if (!confirm('⚠️ A jeni i sigurt që doni të fshini këtë pajisje?')) return;
-            
-            const deviceUsers = getDeviceUsers();
-            if (deviceUsers[userCode]) {
-                const userData = deviceUsers[userCode];
-                const deviceIndex = userData.pajisje.indexOf(deviceFingerprint);
-                
-                if (deviceIndex !== -1) {
-                    userData.pajisje.splice(deviceIndex, 1);
-                    saveDeviceUsers(deviceUsers);
-                    renderDeviceList();
-                    
-                    const currentFp = getCurrentFingerprint();
-                    if (deviceFingerprint === currentFp) {
-                        localStorage.removeItem('user_auth_code');
-                        localStorage.removeItem('user_device_id');
-                        showToast('🔓 Pajisja u fshi! Ju duhet të ri-hyni.', 'warning');
-                    } else {
-                        showToast('🗑️ Pajisja u fshi me sukses!', 'success');
-                    }
-                }
-            }
-        }
-
-        function fshijVetemPajisjet() {
-            if (!isAdmin()) {
-                showToast('⛔ Vetëm Administratori!', 'error');
-                return;
-            }
-            
-            if (!confirm('⚠️ Kjo do të fshijë VETËM pajisjet e regjistruara. Përdoruesit do të mbeten.')) {
-                return;
-            }
-            
-            const deviceUsers = getDeviceUsers();
-            for (const [code, data] of Object.entries(deviceUsers)) {
-                data.pajisje = [];
-            }
-            saveDeviceUsers(deviceUsers);
-            
-            localStorage.removeItem('user_auth_code');
-            localStorage.removeItem('user_device_id');
-            
-            renderDeviceList();
-            showToast('🗑️ Të gjitha pajisjet u fshinë!', 'success');
-        }
-
-        // ============================================
         // STATISTIKAT E PROVAVE
         // ============================================
         function regjistroHapjen(provId) {
-            const stats = getStats();
-            const now = new Date();
-            const timeStr = now.toLocaleString('sq-AL', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
+            getStats().then(stats => {
+                const now = new Date();
+                const timeStr = now.toLocaleString('sq-AL', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                if (!stats[provId]) stats[provId] = { count: 0, lastTime: null, totalSeconds: 0 };
+                stats[provId].count = (stats[provId].count || 0) + 1;
+                stats[provId].lastTime = timeStr;
+                saveStats(stats);
             });
-            if (!stats[provId]) stats[provId] = { count: 0, lastTime: null, totalSeconds: 0 };
-            stats[provId].count = (stats[provId].count || 0) + 1;
-            stats[provId].lastTime = timeStr;
-            saveStats(stats);
             const timerKey = 'timer_start_' + currentUserId + '_' + provId;
             localStorage.setItem(timerKey, Date.now().toString());
-            return stats[provId];
         }
 
         function regjistroKohen(provId) {
@@ -820,34 +895,36 @@
             const elapsed = Math.floor((Date.now() - parseInt(start)) / 1000);
             localStorage.removeItem(timerKey);
             if (elapsed < 3) return false;
-            const stats = getStats();
-            if (!stats[provId]) stats[provId] = { count: 0, lastTime: null, totalSeconds: 0 };
-            stats[provId].totalSeconds = (stats[provId].totalSeconds || 0) + elapsed;
-            saveStats(stats);
+            
+            getStats().then(stats => {
+                if (!stats[provId]) stats[provId] = { count: 0, lastTime: null, totalSeconds: 0 };
+                stats[provId].totalSeconds = (stats[provId].totalSeconds || 0) + elapsed;
+                saveStats(stats);
+            });
+            
             if (currentUserId && currentUserData) {
-                const users = getUsers();
-                if (users[currentUserId]) {
-                    users[currentUserId].totalSeconds = (users[currentUserId].totalSeconds || 0) + elapsed;
-                    saveUsers(users);
-                    currentUserData = users[currentUserId];
-                }
+                getUsers().then(users => {
+                    if (users[currentUserId]) {
+                        users[currentUserId].totalSeconds = (users[currentUserId].totalSeconds || 0) + elapsed;
+                        saveUsers(users);
+                        currentUserData = users[currentUserId];
+                    }
+                });
             }
             return true;
         }
 
         function kontrolloTeGjithaKohet() {
-            let found = false;
-            if (!currentUserId) return false;
+            if (!currentUserId) return;
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
                 if (key.startsWith('timer_start_' + currentUserId + '_')) {
                     const provId = parseInt(key.replace('timer_start_' + currentUserId + '_', ''));
                     if (!isNaN(provId)) {
-                        if (regjistroKohen(provId)) found = true;
+                        regjistroKohen(provId);
                     }
                 }
             });
-            return found;
         }
 
         function hapProv(provId, file) {
@@ -876,11 +953,11 @@
             ];
         }
 
-        function renderProvat() {
+        async function renderProvat() {
             const grid = document.getElementById('provGrid');
             grid.innerHTML = '';
             const provat = getProvat();
-            const stats = getStats();
+            const stats = await getStats();
 
             provat.forEach(prov => {
                 const opened = stats[prov.id]?.count || 0;
@@ -926,12 +1003,20 @@
             document.getElementById('totalPyetje').textContent = provatData.reduce((sum, p) => sum + p.questions, 0);
         }
 
+        function formatTime(seconds) {
+            if (seconds < 60) return `${seconds} sek`;
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            if (hrs > 0) return `${hrs} orë ${mins} min`;
+            return `${mins} min`;
+        }
+
         // ============================================
         // RENDER STATISTIKAT
         // ============================================
-        function renderStats() {
+        async function renderStats() {
             const grid = document.getElementById('statsGrid');
-            const stats = getStats();
+            const stats = await getStats();
             const maxCount = Math.max(...Object.values(stats).map(v => v.count || 0), 1);
             const provat = getProvat();
 
@@ -988,6 +1073,39 @@
         }
 
         // ============================================
+        // SINCRONIZIMI
+        // ============================================
+        async function syncData() {
+            showToast('☁️ Duke sinkronizuar të dhënat...', '');
+            
+            try {
+                const users = await loadUsersFromFirebase();
+                const devices = await loadDevicesFromFirebase();
+                
+                if (users && Object.keys(users).length > 0) {
+                    cachedUsers = users;
+                }
+                if (devices && Object.keys(devices).length > 0) {
+                    cachedDevices = devices;
+                }
+                
+                if (currentUserId) {
+                    const stats = await loadStatsFromFirebase(currentUserId);
+                    if (stats) {
+                        cachedStats[currentUserId] = stats;
+                    }
+                }
+                
+                await renderProvat();
+                await renderStats();
+                showToast('✅ Të dhënat u sinkronizuan!', 'success');
+            } catch (error) {
+                console.error('Gabim në sinkronizim:', error);
+                showToast('❌ Gabim në sinkronizim!', 'error');
+            }
+        }
+
+        // ============================================
         // ADMIN PANEL
         // ============================================
         function openAdminPanel() {
@@ -1004,8 +1122,8 @@
             document.getElementById('adminModal').classList.remove('active');
         }
 
-        function renderUserList() {
-            const users = getUsers();
+        async function renderUserList() {
+            const users = await getUsers();
             const list = document.getElementById('userList');
             list.innerHTML = '';
 
@@ -1039,8 +1157,8 @@
             }
         }
 
-        function renderDeviceList() {
-            const deviceUsers = getDeviceUsers();
+        async function renderDeviceList() {
+            const deviceUsers = await getDeviceUsers();
             const list = document.getElementById('deviceList');
             list.innerHTML = '';
             const currentFingerprint = getCurrentFingerprint();
@@ -1105,7 +1223,7 @@
         // ============================================
         // FUNKSIONET ADMIN
         // ============================================
-        function ndryshoPin(userId) {
+        async function ndryshoPin(userId) {
             const row = document.querySelector(`.user-row .pin-edit[data-id="${userId}"]`);
             if (!row) return;
             if (row.disabled) {
@@ -1115,11 +1233,12 @@
             const newPin = row.value.trim();
             if (newPin.length !== PIN_GJATESIA || !/^\d{6}$/.test(newPin)) {
                 showToast('❌ PIN-i duhet të ketë ' + PIN_GJATESIA + ' shifra!', 'error');
-                const users = getUsers();
+                const users = await getUsers();
                 if (users[userId]) row.value = users[userId].pin;
                 return;
             }
-            const users = getUsers();
+            
+            const users = await getUsers();
             for (const [id, data] of Object.entries(users)) {
                 if (id !== userId && data.pin === newPin) {
                     showToast('❌ Ky PIN është në përdorim!', 'error');
@@ -1127,21 +1246,24 @@
                     return;
                 }
             }
+            
             if (users[userId]) {
                 users[userId].pin = newPin;
                 if (users[userId].locked) {
                     users[userId].locked = false;
                     users[userId].attempts = 0;
                 }
-                saveUsers(users);
-                const deviceUsers = getDeviceUsers();
+                await saveUsers(users);
+                
+                const deviceUsers = await getDeviceUsers();
                 for (const [code, data] of Object.entries(deviceUsers)) {
                     if (data.emri === users[userId].name) {
                         data.pin = newPin;
-                        saveDeviceUsers(deviceUsers);
+                        await saveDeviceUsers(deviceUsers);
                         break;
                     }
                 }
+                
                 if (userId === ADMIN_ID) {
                     currentUserData = users[userId];
                     showToast('✅ PIN-i i Admin-it u ndryshua!', 'success');
@@ -1152,49 +1274,55 @@
             }
         }
 
-        function fshijPerdorues(userId) {
+        async function fshijPerdorues(userId) {
             if (userId === ADMIN_ID) {
                 showToast('❌ Nuk mund të fshini admin-in!', 'error');
                 return;
             }
             if (!confirm('A jeni i sigurt që doni të fshini këtë përdorues?')) return;
-            const users = getUsers();
+            
+            const users = await getUsers();
             const userName = users[userId]?.name;
-            const deviceUsers = getDeviceUsers();
+            
+            const deviceUsers = await getDeviceUsers();
             for (const [code, data] of Object.entries(deviceUsers)) {
                 if (data.emri === userName) {
                     delete deviceUsers[code];
-                    saveDeviceUsers(deviceUsers);
+                    await saveDeviceUsers(deviceUsers);
                     break;
                 }
             }
+            
             delete users[userId];
-            localStorage.removeItem('provStats_' + userId);
+            await saveUsers(users);
+            
+            await database.ref('stats/' + userId).remove();
+            
             const keys = Object.keys(localStorage);
             keys.forEach(k => {
                 if (k.startsWith('timer_start_' + userId + '_')) {
                     localStorage.removeItem(k);
                 }
             });
-            saveUsers(users);
+            
             renderUserList();
             renderDeviceList();
             renderStats();
             showToast('🗑️ Përdoruesi u fshi!', 'success');
         }
 
-        function unlockUser(userId) {
-            const users = getUsers();
+        async function unlockUser(userId) {
+            const users = await getUsers();
             if (users[userId]) {
                 users[userId].locked = false;
                 users[userId].attempts = 0;
-                saveUsers(users);
+                await saveUsers(users);
                 renderUserList();
                 showToast('🔓 Përdoruesi ' + users[userId].name + ' u zhbllokua!', 'success');
             }
         }
 
-        function shtoPerdorues() {
+        async function shtoPerdorues() {
             const nameInput = document.getElementById('newUserName');
             const pinInput = document.getElementById('newUserPin');
             if (!nameInput || !pinInput) {
@@ -1213,7 +1341,8 @@
                 pinInput.focus();
                 return;
             }
-            let users = getUsers();
+            
+            let users = await getUsers();
             for (const [id, data] of Object.entries(users)) {
                 if (data.pin === pin) {
                     showToast('❌ Ky PIN është në përdorim!', 'error');
@@ -1221,6 +1350,7 @@
                     return;
                 }
             }
+            
             let newId = 'user' + (Object.keys(users).length + 1);
             while (users[newId]) {
                 newId = 'user' + (parseInt(newId.replace('user', '')) + 1);
@@ -1236,7 +1366,7 @@
                 locked: false,
                 attempts: 0
             };
-            saveUsers(users);
+            await saveUsers(users);
 
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let prefix = name.substring(0, 3).toUpperCase();
@@ -1244,7 +1374,7 @@
             for (let i = 0; i < 4; i++) {
                 code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            const deviceUsers = getDeviceUsers();
+            const deviceUsers = await getDeviceUsers();
             deviceUsers[code] = {
                 emri: name,
                 pin: pin,
@@ -1253,7 +1383,7 @@
                 maxPajisje: MAX_PAJISJE_PER_PERDORUES,
                 roli: 'user'
             };
-            saveDeviceUsers(deviceUsers);
+            await saveDeviceUsers(deviceUsers);
             
             nameInput.value = '';
             pinInput.value = '';
@@ -1263,7 +1393,55 @@
             showToast('✅ Përdoruesi ' + name + ' u shtua! Kodi: ' + code, 'success');
         }
 
-        function rivendosPerdoruesit() {
+        async function fshijPajisje(userCode, deviceFingerprint) {
+            if (!confirm('⚠️ A jeni i sigurt që doni të fshini këtë pajisje?')) return;
+            
+            const deviceUsers = await getDeviceUsers();
+            if (deviceUsers[userCode]) {
+                const userData = deviceUsers[userCode];
+                const deviceIndex = userData.pajisje.indexOf(deviceFingerprint);
+                
+                if (deviceIndex !== -1) {
+                    userData.pajisje.splice(deviceIndex, 1);
+                    await saveDeviceUsers(deviceUsers);
+                    renderDeviceList();
+                    
+                    const currentFp = getCurrentFingerprint();
+                    if (deviceFingerprint === currentFp) {
+                        localStorage.removeItem('user_auth_code');
+                        localStorage.removeItem('user_device_id');
+                        showToast('🔓 Pajisja u fshi! Ju duhet të ri-hyni.', 'warning');
+                    } else {
+                        showToast('🗑️ Pajisja u fshi me sukses!', 'success');
+                    }
+                }
+            }
+        }
+
+        async function fshijVetemPajisjet() {
+            if (!isAdmin()) {
+                showToast('⛔ Vetëm Administratori!', 'error');
+                return;
+            }
+            
+            if (!confirm('⚠️ Kjo do të fshijë VETËM pajisjet e regjistruara. Përdoruesit do të mbeten.')) {
+                return;
+            }
+            
+            const deviceUsers = await getDeviceUsers();
+            for (const [code, data] of Object.entries(deviceUsers)) {
+                data.pajisje = [];
+            }
+            await saveDeviceUsers(deviceUsers);
+            
+            localStorage.removeItem('user_auth_code');
+            localStorage.removeItem('user_device_id');
+            
+            renderDeviceList();
+            showToast('🗑️ Të gjitha pajisjet u fshinë!', 'success');
+        }
+
+        async function rivendosPerdoruesit() {
             if (!isAdmin()) {
                 showToast('⛔ Vetëm Administratori mund të rivendos përdoruesit!', 'error');
                 return;
@@ -1273,19 +1451,19 @@
             const defaultUsers = {
                 admin: { name: 'Admin', pin: ADMIN_PIN, avatar: 'A', count: 0, totalSeconds: 0, lastTime: null, locked: false, attempts: 0 }
             };
-            const users = getUsers();
-            for (const userId of Object.keys(users)) {
+            
+            const statsRef = database.ref('stats');
+            const snapshot = await statsRef.once('value');
+            const allStats = snapshot.val() || {};
+            for (const userId of Object.keys(allStats)) {
                 if (userId !== ADMIN_ID) {
-                    localStorage.removeItem('provStats_' + userId);
-                    const keys = Object.keys(localStorage);
-                    keys.forEach(k => {
-                        if (k.startsWith('timer_start_' + userId + '_')) {
-                            localStorage.removeItem(k);
-                        }
-                    });
+                    await database.ref('stats/' + userId).remove();
                 }
             }
-            const defaultDeviceUsers = {
+            
+            await saveUsers(defaultUsers);
+            
+            const defaultDevices = {
                 'ADM2026': {
                     emri: 'Admin',
                     pin: ADMIN_PIN,
@@ -1295,45 +1473,47 @@
                     roli: 'admin'
                 }
             };
-            saveUsers(defaultUsers);
-            saveDeviceUsers(defaultDeviceUsers);
+            await saveDeviceUsers(defaultDevices);
+            
             localStorage.removeItem('user_auth_code');
             localStorage.removeItem('user_device_id');
+            
             renderUserList();
             renderDeviceList();
             renderStats();
             showToast('👥 Përdoruesit u rivendosën!', 'success');
         }
 
-        function rivendosStatistikat() {
+        async function rivendosStatistikat() {
             if (!isAdmin()) {
                 showToast('⛔ Vetëm Administratori mund të rivendos statistikat!', 'error');
                 return;
             }
             if (!confirm('⚠️ A jeni i sigurt që doni të rivendosni të gjitha statistikat e hapjeve?')) return;
-            const users = getUsers();
-            for (const userId of Object.keys(users)) {
-                localStorage.removeItem('provStats_' + userId);
-                const keys = Object.keys(localStorage);
-                keys.forEach(k => {
-                    if (k.startsWith('timer_start_' + userId + '_')) {
-                        localStorage.removeItem(k);
-                    }
-                });
-            }
-            localStorage.removeItem('provStats_all');
+            
+            await database.ref('stats').remove();
+            
+            const keys = Object.keys(localStorage);
+            keys.forEach(k => {
+                if (k.startsWith('timer_start_')) {
+                    localStorage.removeItem(k);
+                }
+            });
+            
+            cachedStats = {};
             renderProvat();
             renderStats();
             showToast('📊 Statistikat u rivendosën!', 'success');
         }
 
-        function pastroKonfliktet() {
+        async function pastroKonfliktet() {
             if (!isAdmin()) {
                 showToast('⛔ Vetëm Administratori mund ta bëjë këtë!', 'error');
                 return;
             }
             if (!confirm('⚠️ Kjo do të fshijë të gjithë përdoruesit që kanë PIN të njëjtë me admin-in?')) return;
-            const users = getUsers();
+            
+            const users = await getUsers();
             const toDelete = [];
             for (const [id, data] of Object.entries(users)) {
                 if (id !== ADMIN_ID && data.pin === ADMIN_PIN) {
@@ -1344,33 +1524,27 @@
                 showToast('✅ Nuk ka konflikte!', 'success');
                 return;
             }
-            toDelete.forEach(id => {
+            
+            for (const id of toDelete) {
                 delete users[id];
-                localStorage.removeItem('provStats_' + id);
+                await database.ref('stats/' + id).remove();
                 const keys = Object.keys(localStorage);
                 keys.forEach(k => {
                     if (k.startsWith('timer_start_' + id + '_')) {
                         localStorage.removeItem(k);
                     }
                 });
-            });
-            saveUsers(users);
+            }
+            await saveUsers(users);
+            
             renderUserList();
             renderProvat();
             renderStats();
             showToast('🗑️ U fshinë ' + toDelete.length + ' përdorues!', 'success');
         }
 
-        // ============================================
-        // BUTONI I PASTRIMIT
-        // ============================================
         function pastroGjithcka() {
-            if (typeof currentUserId === 'undefined' || currentUserId !== 'admin') {
-                alert('⛔ Vetëm Administratori mund të pastrojë të dhënat!');
-                return;
-            }
-            
-            if (!currentUserData || currentUserData.name !== 'Admin') {
+            if (!isAdmin()) {
                 alert('⛔ Vetëm Administratori mund të pastrojë të dhënat!');
                 return;
             }
@@ -1379,23 +1553,16 @@
                 return;
             }
             
-            localStorage.clear();
+            database.ref('users').remove();
+            database.ref('stats').remove();
+            database.ref('devices').remove();
             
-            const adminOnly = {
-                admin: { 
-                    name: 'Admin', 
-                    pin: ADMIN_PIN, 
-                    avatar: 'A', 
-                    count: 0, 
-                    totalSeconds: 0, 
-                    lastTime: null, 
-                    locked: false, 
-                    attempts: 0 
-                }
+            const defaultUsers = {
+                admin: { name: 'Admin', pin: ADMIN_PIN, avatar: 'A', count: 0, totalSeconds: 0, lastTime: null, locked: false, attempts: 0 }
             };
-            localStorage.setItem('appUsers', JSON.stringify(adminOnly));
+            database.ref('users').set(defaultUsers);
             
-            const deviceAdmin = {
+            const defaultDevices = {
                 'ADM2026': {
                     emri: 'Admin',
                     pin: ADMIN_PIN,
@@ -1405,18 +1572,16 @@
                     roli: 'admin'
                 }
             };
-            localStorage.setItem('deviceUsers', JSON.stringify(deviceAdmin));
+            database.ref('devices').set(defaultDevices);
             
-            localStorage.removeItem('user_auth_code');
-            localStorage.removeItem('user_device_id');
-            localStorage.removeItem('current_device_fingerprint');
+            localStorage.clear();
             
             alert('✅ Të dhënat u pastruan! Vetëm Admin mbetet.');
             location.reload();
         }
 
         function testPhoneFingerprint() {
-            if (typeof currentUserId === 'undefined' || currentUserId !== 'admin') {
+            if (!isAdmin()) {
                 alert('⛔ Vetëm Administratori mund të testojë!');
                 return;
             }
@@ -1491,12 +1656,16 @@
                 showToast('⛔ Pamja e burimit nuk lejohet!', 'error');
                 return false;
             }
-            // F12 - LEJOHET PËR TESTIM (komento)
-            // if (e.key === 'F12') {
-            //     e.preventDefault();
-            //     showToast('⛔ DevTools nuk lejohet!', 'error');
-            //     return false;
-            // }
+            if (e.key === 'F12') {
+                e.preventDefault();
+                showToast('⛔ DevTools nuk lejohet!', 'error');
+                return false;
+            }
+            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+                e.preventDefault();
+                showToast('⛔ Ruajtja e faqes nuk lejohet!', 'error');
+                return false;
+            }
         });
 
         document.addEventListener('keyup', function(e) {
@@ -1537,8 +1706,7 @@
         // ============================================
         // FILLIMI
         // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pastro localStorage nëse ka probleme
+        document.addEventListener('DOMContentLoaded', async function() {
             try {
                 const fp = localStorage.getItem('current_device_fingerprint');
                 if (fp && (fp === 'fallback' || fp === 'fallback...' || fp.length > 50 || fp.startsWith('device_'))) {
@@ -1548,20 +1716,10 @@
                 }
             } catch(e) {}
             
-            // Krijo deviceUsers nëse nuk ekziston
-            let deviceUsers = getDeviceUsers();
-            if (Object.keys(deviceUsers).length === 0) {
-                deviceUsers = {
-                    'ADM2026': {
-                        emri: 'Admin',
-                        pin: ADMIN_PIN,
-                        kod: 'ADM2026',
-                        pajisje: [],
-                        maxPajisje: 3,
-                        roli: 'admin'
-                    }
-                };
-                saveDeviceUsers(deviceUsers);
+            try {
+                await syncData();
+            } catch(e) {
+                console.error('Gabim në sinkronizimin fillestar:', e);
             }
             
             setTimeout(function() {
@@ -1572,6 +1730,9 @@
                 renderStats();
                 updateButtonVisibility();
             }, 300);
+            
+            document.getElementById('pinSubtitle').textContent = 'Shkruani PIN-in tuaj (' + PIN_GJATESIA + ' shifra)';
+            pinInputs[0].focus();
         });
 
         document.addEventListener('visibilitychange', function() {
@@ -1601,33 +1762,10 @@
             updateButtonVisibility();
         }, 3000);
 
-        document.getElementById('pinSubtitle').textContent = 'Shkruani PIN-in tuaj (' + PIN_GJATESIA + ' shifra)';
-        pinInputs[0].focus();
-
-        console.log('🔐 Sistemi i përdoruesve është aktiv!');
+        console.log('🔥 Firebase u inicializua!');
+        console.log('🔐 Sistemi i përdoruesve është aktiv me Firebase!');
         console.log('👤 Admin PIN: ' + ADMIN_PIN);
         console.log('📱 Maksimumi i pajisjeve për përdorues: ' + MAX_PAJISJE_PER_PERDORUES);
     </script>
-
-    <!-- ============================================ -->
-    <!-- BUTONI I PASTRIMIT -->
-    <!-- ============================================ -->
-    <div id="clearDataBtn" style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: none;">
-        <button onclick="pastroGjithcka()" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer; opacity:0.4; transition:opacity 0.3s;" 
-                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'">
-            🗑️ Pastro
-        </button>
-    </div>
-
-    <!-- ============================================ -->
-    <!-- BUTONI PËR TESTIMIN NË TELEFON -->
-    <!-- ============================================ -->
-    <div id="testPhoneBtn" style="position: fixed; bottom: 60px; left: 10px; z-index: 9999; display: none;">
-        <button onclick="testPhoneFingerprint()" style="padding:6px 12px; background:#28a745; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer; opacity:0.4; transition:opacity 0.3s;" 
-                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'">
-            📱 Test Phone
-        </button>
-    </div>
-
 </body>
 </html>
