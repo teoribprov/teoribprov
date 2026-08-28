@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test PIN</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 50px; background: #f0f2f5; }
+        .pin-input { display: flex; gap: 10px; justify-content: center; margin: 20px; }
+        .pin-input input { width: 50px; height: 60px; text-align: center; font-size: 24px; border: 2px solid #003057; border-radius: 10px; background: white; }
+        .pin-input input:focus { outline: none; border-color: #ffcd00; }
+        .error { color: red; font-weight: bold; }
+        .success { color: green; font-weight: bold; }
+        button { padding: 12px 40px; background: #003057; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
+        button:hover { background: #002244; }
+        .container { background: white; padding: 40px; border-radius: 16px; max-width: 400px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test PIN</h1>
+        <p>Shkruani PIN-in (6 shifra):</p>
+        <div class="pin-input" id="pinGroup">
+            <input type="password" maxlength="1" class="pin-digit" data-index="0" autofocus>
+            <input type="password" maxlength="1" class="pin-digit" data-index="1">
+            <input type="password" maxlength="1" class="pin-digit" data-index="2">
+            <input type="password" maxlength="1" class="pin-digit" data-index="3">
+            <input type="password" maxlength="1" class="pin-digit" data-index="4">
+            <input type="password" maxlength="1" class="pin-digit" data-index="5">
+        </div>
+        <div id="message" style="min-height: 30px;"></div>
+        <br>
+        <button onclick="kontrollo()">🔑 Kyçu</button>
+    </div>
+
+    <script>
+        // ============================================
+        // KONFIGURIMI I FIREBASE
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjpihYJAAXb9Ms5B9Pho84xd2wB_sxSVs",
+            authDomain: "teoribprov-67be0.firebaseapp.com",
+            databaseURL: "https://teoribprov-67be0-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "teoribprov-67be0",
+            storageBucket: "teoribprov-67be0.firebasestorage.app",
+            messagingSenderId: "586858590685",
+            appId: "1:586858590685:web:c207107de246bb3ac78634",
+            measurementId: "G-8XNGZRTSXP"
+        };
+
+        // Inicializo Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            console.log('🔥 Firebase u inicializua!');
+            document.getElementById('message').textContent = '✅ Firebase po punon!';
+            document.getElementById('message').className = 'success';
+        } catch(e) {
+            console.error('❌ Gabim:', e);
+            document.getElementById('message').textContent = '❌ Gabim: ' + e.message;
+            document.getElementById('message').className = 'error';
+        }
+
+        // ============================================
+        // LOGJIKA E PIN-IT
+        // ============================================
+        const inputs = document.querySelectorAll('.pin-digit');
+        const message = document.getElementById('message');
+
+        // Kalimi automatik nga njëri input te tjetri
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                message.textContent = '';
+                message.className = '';
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Funksioni kryesor
+        function kontrollo() {
+            let pin = '';
+            inputs.forEach(input => pin += input.value);
+            
+            if (pin.length !== 6) {
+                message.textContent = '❌ Plotësoni të 6 shifrat!';
+                message.className = 'error';
+                return;
+            }
+
+            message.textContent = '🔄 Duke kontrolluar...';
+            message.className = '';
+
+            // Kontrollo në Firebase
+            const database = firebase.database();
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    let found = false;
+                    let userName = '';
+                    
+                    for (const [id, data] of Object.entries(users)) {
+                        if (data.pin === pin) {
+                            found = true;
+                            userName = data.name;
+                            break;
+                        }
+                    }
+                    
+                    if (found) {
+                        message.textContent = '✅ Mirë se vini, ' + userName + '! 🎉';
+                        message.className = 'success';
+                    } else {
+                        message.textContent = '❌ PIN i gabuar! Provoni përsëri.';
+                        message.className = 'error';
+                        inputs.forEach(input => input.value = '');
+                        inputs[0].focus();
+                    }
+                })
+                .catch(error => {
+                    message.textContent = '❌ Gabim në server: ' + error.message;
+                    message.className = 'error';
+                });
+        }
+
+        // Mundëson Enter për të kyçur
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                kontrollo();
+            }
+        });
+    </script>
+</body>
+</html>
