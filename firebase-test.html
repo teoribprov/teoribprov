@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+    <h1>🔥 Test Firebase</h1>
+    <button onclick="testFirebase()">Testo Firebase</button>
+    <pre id="output"></pre>
+
+    <script>
+        // Konfigurimi juaj
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjpihYJAAXb9Ms5B9Pho84xd2wB_sxSVs",
+            authDomain: "teoribprov-67be0.firebaseapp.com",
+            databaseURL: "https://teoribprov-67be0-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "teoribprov-67be0",
+            storageBucket: "teoribprov-67be0.firebasestorage.app",
+            messagingSenderId: "586858590685",
+            appId: "1:586858590685:web:c207107de246bb3ac78634",
+            measurementId: "G-8XNGZRTSXP"
+        };
+
+        // Inicializo Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            console.log('🔥 Firebase u inicializua!');
+        } catch(e) {
+            console.error('❌ Gabim në inicializim:', e);
+            alert('❌ Gabim: ' + e.message);
+        }
+
+        function testFirebase() {
+            const output = document.getElementById('output');
+            output.textContent = '🔄 Duke testuar Firebase...\n';
+            
+            try {
+                const database = firebase.database();
+                
+                // Testo shkrimin
+                database.ref('test').set({
+                    message: 'Hello from test!',
+                    time: new Date().toISOString()
+                }).then(() => {
+                    output.textContent += '✅ Shkrimi në Firebase funksionoi!\n';
+                    
+                    // Testo leximin
+                    return database.ref('test').once('value');
+                }).then((snapshot) => {
+                    output.textContent += '✅ Leximi nga Firebase funksionoi!\n';
+                    output.textContent += '📝 Të dhënat: ' + JSON.stringify(snapshot.val(), null, 2);
+                }).catch((error) => {
+                    output.textContent += '❌ Gabim: ' + error.message;
+                });
+            } catch(e) {
+                output.textContent += '❌ Gabim: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
