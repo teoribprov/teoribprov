@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prov 13  - 17- </title>
+	<script src="../security.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        #timer {
+            color: #c0392b;
+            font-size: 18px;
+        }
+        .question-box {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .question-box.active {
+            display: block;
+        }
+        .question-image {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .question-image img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: transform 0.3s ease, max-height 0.3s ease;
+        }
+        .question-image img.zoomed {
+            max-height: none;
+            max-width: 100%;
+            transform: scale(1.5);
+            cursor: zoom-out;
+            margin: 20px 0;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .options label {
+            display: block;
+            padding: 10px 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: background 0.2s;
+        }
+        .options label:hover {
+            background-color: #f0f0f5;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        .correct {
+            background-color: #d4edda !important;
+            color: #155724;
+            border-color: #c3e6cb !important;
+            font-weight: bold;
+        }
+        .incorrect {
+            background-color: #f8d7da !important;
+            color: #721c24;
+            border-color: #f5c6cb !important;
+        }
+        #nav-controls {
+            text-align: center;
+            margin-top: 15px;
+        }
+        #result-section {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin: 0 5px;
+        }
+        #prev-btn { background-color: #7f8c8d; }
+        #prev-btn:hover { background-color: #707b7c; }
+        #next-btn { background-color: #2980b9; }
+        #next-btn:hover { background-color: #1f618d; }
+        #submit-btn { background-color: #27ae60; }
+        #submit-btn:hover { background-color: #219653; }
+        #reset-btn { background-color: #e67e22; }
+        #reset-btn:hover { background-color: #d35400; }
+        #review-btn { background-color: #8e44ad; display: none; }
+        #review-btn:hover { background-color: #732d91; }
+        
+        #result-display {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .passed {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #c3e6cb;
+        }
+        .failed {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Prov 13</h1>
+
+    <div id="top-bar">
+    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <a href="../index.html" style="text-decoration: none; color: #003057; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; background: #f0f0f5; padding: 6px 14px; border-radius: 20px; border: 1px solid #ddd; transition: background 0.2s;" 
+           onmouseover="this.style.background='#e8edf2'" 
+           onmouseout="this.style.background='#f0f0f5'">
+            🏠 Kthehu te faqja kryesore
+        </a>
+        <span id="question-counter">Pyetja: 1 / 65</span>
+    </div>
+    <div id="timer">Koha: 50:00</div>
+</div>
+
+    <div id="quiz-container"></div>
+
+    <div id="nav-controls">
+        <button id="prev-btn" class="action-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
+        <button id="next-btn" class="action-btn" onclick="ndryshoPyetjen(1)">Para</button>
+    </div>
+
+    <div id="result-section">
+        <button id="submit-btn" class="action-btn" onclick="shfaqRezultatin()">Përfundo Testin</button>
+        <button id="review-btn" class="action-btn" onclick="shkoTeGabimet()">Shiko Gabimet</button>
+        <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
+        <span id="result-display"></span>
+    </div>
+
+    <script>
+        // ============================================
+        // PYETJET - PROV 17 (MOS I PREKNI KËTO)
+        // ============================================
+        const originalQuestions = [
+    {
+        id: 1,
+        q: "Po të kyçish veturës një rimorkio dhe nuk je i sigurt a lejohet, ku i gjen shënimet?",
+        options: [
+            "A: Në fletën e sugunimit",
+            "B: Në protokollin e kontrollit teknik",
+            "C: Në fletëregjistrin e automjetit",
+            "D: Në rregulloren e tërheqjes",
+            "E: Në librin e udhëzimeve të veturës"
+        ],
+        correctText: "C: Në fletëregjistrin e automjetit"
+    },
+    {
+        id: 2,
+        image: "2.png",
+        q: "Lëvizni 50 km/h dhe jeni 5 m mbas autobusit me gjatësi 13 m të cilin keni ndër mend ta anashkaloni. A do të mund të ndalish veturën nëse një fëmijë del para autobusit?",
+        options: [
+            "A: Po",
+            "B: Jo"
+        ],
+        correctText: "B: Jo"
+    },
+    {
+        id: 3,
+        q: "Ka ra mjegull e dendur dhe qarkullon nëpër një rrugë rajonale. Çka duhet të bësh?",
+        options: [
+            "A: Të afrohem automjetit para meje më shumë se zakonisht",
+            "B: Të drejtoj shikimin përpara më shumë se zakonisht",
+            "C: Të ndez dritat e mbasme të mjegullës dhe të shuaj kur mjegulla dobësohet",
+            "D: Të ngas makinën më ngadal se zakonisht"
+        ],
+        correctText: "D: Të ngas makinën më ngadal se zakonisht"
+    },
+    {
+        id: 4,
+        q: "A keni të drejtë të parakaloni nga e majta para ose mu në një udhëkryq?",
+        options: [
+            "A: Jo, kurrë nuk lejohet parakalimi para ose mu te udhëkryqi",
+            "B: Po, nëse në atë udhëkryq vlen rregulla e djathtë",
+            "C: Po, nëse ngas në një rrugë kryesore"
+        ],
+        correctText: "C: Po, nëse ngas në një rrugë kryesore"
+    },
+    {
+        id: 5,
+        q: "Në veturë ke një bashkudhëtar 14 vjeçar. Kush mba përgjegjësi për mbajtjen e rripit gjatë qarkullimit?",
+        options: [
+            "A: Vetëm unë / shoferi/",
+            "B: Vetëm 14 vjeçari",
+            "C: Edhe unë edhe 14 vjeçari"
+        ],
+        correctText: "A: Vetëm unë / shoferi/"
+    },
+    {
+        id: 6,
+        q: "Ngarja ekonomike nënkupton se në shfrytëzojmë forcën lëvizëse dhe planifikimin me kohë. Harxhon vetura më shumë karburant nëse frenojmë pa nevojë?",
+        options: [
+            "A: Po, vetëm nëse frenojmë në një përpjetëze",
+            "B: Jo, forca lëvizëse nuk ndikohet nga frenimi",
+            "C: Po, por vetëm nëse frenojmë me frenim motorik",
+            "D: Po, frenimi shkakton që unë të mos shfrytëzoj sa duhet forcën lëvizëse të makinës"
+        ],
+        correctText: "D: Po, frenimi shkakton që unë të mos shfrytëzoj sa duhet forcën lëvizëse të makinës"
+    },
+    {
+        id: 7,
+        q: "Cili grup drejtuesish më shpesh e mbicmon aftësinë ngasëse?",
+        options: [
+            "A: Gratë e moshës mesatare",
+            "B: Femrat e reja",
+            "C: Drejtuesit e moshës mbi 65 vjeçare",
+            "D: Meshkujt e moshës mesatare",
+            "E: Djemt e ri"
+        ],
+        correctText: "E: Djemt e ri"
+    },
+    {
+        id: 8,
+        image: "8.png",
+        q: "Çka vlen mbas kësaj shenje?",
+        options: [
+            "A: Ndalohet qarkullimi i të gjitha automjeteve",
+            "B: Lejohet qarkullimi me shpejtësi maksimale 30 km/h",
+            "C: Drejtuesit e makinave patjetër t'iu japin përparësi biçiklistëve",
+            "D: Lejohet hyrja në këtë rrugë nëse duhet të marrim dikënd që banon në fund të rrugës"
+        ],
+        correctText: "D: Lejohet hyrja në këtë rrugë nëse duhet të marrim dikënd që banon në fund të rrugës"
+    },
+    {
+        id: 9,
+        image: "9.png",
+        q: "Kaprolli del përpara teje dh bi frenon me gjithë forcën. Çka ndikon më shumë në gjatësinë e segmentit të frenimit?",
+        options: [
+            "A: Nëse vetura ka ose nuk ka frena ABS /SAB/?",
+            "B: Thellësia e vijave të gomës",
+            "C: Shpejtësia e veturës"
+        ],
+        correctText: "C: Shpejtësia e veturës"
+    },
+    {
+        id: 10,
+        q: "Duhet të transportoni me rimorkio sendet shtëpiake të një shoku. Kush mba përgjegjësi për sigurinë e ngarkesës?",
+        options: [
+            "A: Pronari i sendeve",
+            "B: Unë / drejtusi i makinës",
+            "C: Shoku i cili është pronar i veturës",
+            "D: Personi që e ka ngarkuar lëndën"
+        ],
+        correctText: "B: Unë / drejtusi i makinës"
+    },
+    {
+        id: 11,
+        q: "Me çfarë shpejtësie keni të drejtë ta drejtoni kamionin e lehtë nëpër autostradë nëse shpejtësia maksimale është 110 km/h?",
+        options: [
+            "A: 80 km/h",
+            "B: 90 km/h",
+            "C: 100 km/h",
+            "D: 110 km/h"
+        ],
+        correctText: "D: 110 km/h"
+    },
+    {
+        id: 12,
+        image: "12.png",
+        q: "Qarkulloni në një rrugë të veçantë me të cilën kryqëzohet gjithashtu një rrugë e veçantë. A vlen rregulla e djathtë?",
+        options: [
+            "A: Jo, sepse rruga anësore është më e ngushtë",
+            "B: Po",
+            "C: Jo, kujdesi i dyanshëm vlen në këtë rast",
+            "D: Jo, rregulla e djathtë nuk vlen në rrugë pa asfalt"
+        ],
+        correctText: "B: Po"
+    },
+    {
+        id: 13,
+        q: "Çka vlen kur tërheqim një automjet?",
+        options: [
+            "A: Tërkuza nuk lejohet të jetë me e gjatë se 2 metra",
+            "B: Po të jetë më e gjatë se 2 metra, patjetër t'i vihet një shenjë tërku zës",
+            "C: Dritat e paralajmërimit / e bllokazhit/ duhet të jenë të ndezura",
+            "D: Shpejtësia maksimale e lejuar është 50 km/h"
+        ],
+        correctText: "B: Po të jetë më e gjatë se 2 metra, patjetër t'i vihet një shenjë tërku zës"
+    },
+    {
+        id: 14,
+        image: "14.png",
+        q: "Çka na informon etiketa në këtë fotografi?",
+        options: [
+            "A: Jastëku ajror /erbagu/ nuk funksionon përkohësisht",
+            "B: Vetura nuk ka erbag",
+            "C: Në këtë anë të veturës ka erbag",
+            "D: Erbagu i veturës është bllokuar nga ana e një ofiçinë të autorizuar"
+        ],
+        correctText: "C: Në këtë anë të veturës ka erbag"
+    },
+    {
+        id: 15,
+        image: "15.png",
+        q: "A sinjalizon ndonjëri semafor se lejohet të vazhdojmë djathtas?",
+        options: [
+            "A: Po, semafori A",
+            "B: Po, semafori B",
+            "C: Po, të dy semaforët",
+            "D: Jo"
+        ],
+        correctText: "C: Po, të dy semaforët"
+    },
+    {
+        id: 16,
+        q: "Cilat persona i takojnë më shumë grupit të drejtuesëve të alkoholizuar?",
+        options: [
+            "A: Gratë e moshuara",
+            "B: Meshkujt e moshës mesatare dhe të rinjtë",
+            "C: Burrat e moshuar",
+            "D: Gratë e moshës mesatare dhe të reja"
+        ],
+        correctText: "B: Meshkujt e moshës mesatare dhe të rinjtë"
+    },
+    {
+        id: 17,
+        image: "17.png",
+        q: "Doni të kaloni në korsinë e djathtë. Çfarë renditje veprimesh duhet të bëni?",
+        options: [
+            "A: Kontrolloj trafikun, jap shenjë dhe ndërroj korsinë",
+            "B: Kontrolloj trafikun, ndërroj korsinë, jap shenjë",
+            "C: Jap shenjë, kontrolloj trafikun, ndërroj korsinë"
+        ],
+        correctText: "A: Kontrolloj trafikun, jap shenjë dhe ndërroj korsinë"
+    },
+    {
+        id: 18,
+        q: "Trysnia e grupit ndikon në sjelljen tënde derisa drejton makinën. A është kjo mirë ose keq?",
+        options: [
+            "A: Botëkuptimi i tyre për trafikun ka rëndësi për ndikimin e mirë ose të keq të trysnisë",
+            "B: Trysnia ka gjithmonë ndikim të keq",
+            "C: Trysnia ka gjithmonë ndikim të mirë"
+        ],
+        correctText: "A: Botëkuptimi i tyre për trafikun ka rëndësi për ndikimin e mirë ose të keq të trysnisë"
+    },
+    {
+        id: 19,
+        image: "19.png",
+        q: "Do të vazhdoni drejt. Cilave automjete duhet t'iu jepni përparësi kalimi?",
+        options: [
+            "A: Vetëm automjeteve nga e djathta",
+            "B: Vetëm automjeteve nga e majta",
+            "C: Automjeteve që vijnë përballë dhe do të kthejnë majtas",
+            "D: Automjeteve nga e majta dhe e djathta"
+        ],
+        correctText: "A: Vetëm automjeteve nga e djathta"
+    },
+    {
+        id: 20,
+        q: "Ku qëndron shkaku kryesor që më shumë kufizime shpejtësie po zbatohen?",
+        options: [
+            "A: Për të pakësuar sasinë e gazërave",
+            "B: Drejtuesit do të bëhen më të vëmendshëm se cila shpejtësi maksimale vlen",
+            "C: Do të zvogëlohet dëmtimi i rrugëve",
+            "D: Shpejtësia duhet t'iu përshtatet më mirë rrethanave në rrugë"
+        ],
+        correctText: "D: Shpejtësia duhet t'iu përshtatet më mirë rrethanave në rrugë"
+    },
+    {
+        id: 21,
+        image: "21.png",
+        q: "Çka do të thotë kjo shenjë?",
+        options: [
+            "A: Ndalohet parakalimi sepse rruga do të ngushtohet",
+            "B: Numri i korsive zvogëlohet mbas 400 metrash",
+            "C: Trafiku në korsinë e djathtë mbas 400 m do t'i jap përparësi kalimi trafikut nga e majta",
+            "D: Mbas 400 metra, trafiku në korsinë e majtë do t'i japë trafikut në të djathtë përparësi kalimi"
+        ],
+        correctText: "B: Numri i korsive zvogëlohet mbas 400 metrash"
+    },
+    {
+        id: 22,
+        q: "Një person me shikim të dëmtuar qëndron përskaj trotuarit me një shkopin të bardhë të çuar pak si lart. Për çka duhet të jesh i gatshëm?",
+        options: [
+            "A: Ai qëndron aty për të më lejuar që unë të kaloj më parë",
+            "B: Pret që ta ndihmojë dikush",
+            "C: Se ai ka ndërmend të kalojë në anën tjetër të rrugës",
+            "D: Do të kthehet dhe do të vazhdojë nga ndonjë anë tjetër"
+        ],
+        correctText: "C: Se ai ka ndërmend të kalojë në anën tjetër të rrugës"
+    },
+    {
+        id: 23,
+        image: "23.png",
+        q: "A vlen rregulla e djathtë në këto situata?",
+        options: [
+            "A: Po, por vetëm në fotografinë A",
+            "B: Po, por vetëm në fotografinë B",
+            "C: Po, në të dy situatat",
+            "D: Jo"
+        ],
+        correctText: "B: Po, por vetëm në fotografinë B"
+    },
+    {
+        id: 24,
+        q: "Çka mund të bëni që të pakësoni emetimin e dioksidit të karbonit?",
+        options: [
+            "A: Lë që të ngrohet vetura nja 1 minut para se të nisem",
+            "B: Do ta drejtoj makinën në marsh sa më të lartë",
+            "C: Do ta drejtoj makinën në marsh sa më të ulët",
+            "D: Sa më pak do të frenoj me motor"
+        ],
+        correctText: "B: Do ta drejtoj makinën në marsh sa më të lartë"
+    },
+    {
+        id: 25,
+        image: "25.png",
+        q: "Në cilën fotografi ndodhet shenja për ngadalësimin e shpejtësisë së veturës?",
+        options: [
+            "A: Në fotografinë A",
+            "B: Në fotografinë B",
+            "C: Në fotografinë C /me krah të palëvizshëm/",
+            "D: Në fotografinë D /krahu në lëvizje lart e poshtë/"
+        ],
+        correctText: "D: Në fotografinë D /krahu në lëvizje lart e poshtë/"
+    },
+    {
+        id: 26,
+        image: "26.png",
+        q: "Çfarë informacioni na jep kjo shenjë?",
+        options: [
+            "A: Mbas 200 m nis të vlejë kufizimi 50 km/h",
+            "B: Mbas 200 m nuk vlen me kufizimi 50 km/h",
+            "C: Mbas 200 m nis shpejtësia e rekomanduar 50 km/h"
+        ],
+        correctText: "A: Mbas 200 m nis të vlejë kufizimi 50 km/h"
+    },
+    {
+        id: 27,
+        q: "Në ç mënyrë e rrit sigurinë në trafik distanca ndaj automjeteve para nesh?",
+        options: [
+            "A: Distanca e shkurtër pengon parakalimet e rrezikshme",
+            "B: Distanca e shkurtër e rrit sigurinë kur nis të parakaloj",
+            "C: Distanca e gjatë ua lehtëson parakalimin automjeteve mbas meje"
+        ],
+        correctText: "C: Distanca e gjatë ua lehtëson parakalimin automjeteve mbas meje"
+    },
+    {
+        id: 28,
+        q: "Nga një rrugë anësore sapo keni hyrë në këtë rrugë. Nuk ka asnjë shenjë shpejtësie. Sa lejohet të jetë shpejtësia maksimale në këtë rast?",
+        options: [
+            "A: 50 km/h",
+            "B: 60 km/h",
+            "C: 70 km/h",
+            "D: 80 km/h",
+            "E: 90 km/h"
+        ],
+        correctText: "C: 70 km/h"
+    },
+    {
+        id: 29,
+        q: "Cili është rreziku më i madh kur mësojmë simbas probabilitetit?",
+        options: [
+            "A: Që gjithë kohën të llogarisim mundësinë e ndodhjes së një fatkeqësie",
+            "B: Mësojmë do sende që nuk përputhen me realitetin",
+            "C: Njeriu bëhet më pak i ndërgjegjshëm për rrezikun që na kanoset nëpër rrugë që i njohim mirë"
+        ],
+        correctText: "C: Njeriu bëhet më pak i ndërgjegjshëm për rrezikun që na kanoset nëpër rrugë që i njohim mirë"
+    },
+    {
+        id: 30,
+        image: "30.png",
+        q: "Shpejtësia maksimale në këtë rrugë është 90 km/h. A keni të drejtë ta parakaloni nga e djathta veturën e bardhë që po lëviz pak më ngadal?",
+        options: [
+            "A: Po, sepse shpejtësia maksimale është 90 km/h",
+            "B: Jo",
+            "C: Po, por vetëm nëse unë hyj në rrugën tek dalja që pason",
+            "D: Po, por vetëm nëse ka një kolonë mbas meje"
+        ],
+        correctText: "B: Jo"
+    },
+    {
+        id: 31,
+		image: "31.png",
+        q: "Çka duhet të bëni në këtë situatë?",
+        options: [
+            "A: I bie sirenës për t'i bërë me dije biçiklistit se dua ta parakaloj",
+            "B: Do ta parakaloj biçiklistin, por pa kapërcyer mbi vijën e mesme",
+            "C: Do të pres që ta parakaloj biçiklistin",
+            "D: Lëviz krah më krah me biçiklistin për të vendosur kontakt me sy para se të nis ta parakaloj atë"
+        ],
+        correctText: "C: Do të pres që ta parakaloj biçiklistin"
+    },
+    {
+        id: 32,
+        image: "32.png",
+        q: "Duhet ta parkoni veturën nja 2 orë. A keni të drejtë të parkoni këtu?",
+        options: [
+            "A: Po, por vetëm në rrugën A",
+            "B: Po, por vetëm në rrugën B",
+            "C: Po, në të dyja rrugët",
+            "D: Jo"
+        ],
+        correctText: "A: Po, por vetëm në rrugën A"
+    },
+    {
+        id: 33,
+        q: "Vetura juaj ka frena servo, ndërsa motori është me defekt. Çka ndodh nga kjo kur tërhiqet vetura?",
+        options: [
+            "A: Rrota bllokohet më lehtë se zakonisht kur nis e frenoj",
+            "B: Frenat nuk punojnë aspak",
+            "C: Kur nis të frenoj më duhet të përdor shumë më tepër fuqi se zakonisht."
+        ],
+        correctText: "C: Kur nis të frenoj më duhet të përdor shumë më tepër fuqi se zakonisht."
+    },
+    {
+        id: 34,
+        image: "34.png",
+        q: "Çka domethënë kjo dritë e ndezur?",
+        options: [
+            "A: Drita e parkimit nuk funksionon",
+            "B: Drita e mbasme e mjegullës është e ndezur",
+            "C: Drita e parkimit është e ndezur",
+            "D: Dritat e mesme janë të ndezura",
+            "E: Dritat e mesme nuk funksionojnë"
+        ],
+        correctText: "B: Drita e mbasme e mjegullës është e ndezur"
+    },
+    {
+        id: 35,
+        image: "35.png",
+        q: "Mbasi ta lësh mbrapa këtë shenjë, kur duhet të jesh jashtëzakonisht i vëmendshëm?",
+        options: [
+            "A: Herët në mëngjes",
+            "B: Në pikë të ditës",
+            "C: Gjatë verës",
+            "D: Kur bën mot i ngrohtë"
+        ],
+        correctText: "A: Herët në mëngjes"
+    },
+    {
+        id: 36,
+        image: "36.png",
+        q: "Në panelin e kontrollit të instrumenteve vizullon kjo dritë. Çka do të thotë kjo ?",
+        options: [
+            "A: Gabim në sistemin elektrik",
+            "B: Shtypje e ulët e vajit në motor",
+            "C: Rruga është e rrëshqitshme",
+            "D: Defekt në frena"
+        ],
+        correctText: "C: Rruga është e rrëshqitshme"
+    },
+    {
+        id: 37,
+        image: "37.png",
+        q: "Çka domethënë kjo shenjë me tabelën shtesë që ndodhet në anën e djathtë?",
+        options: [
+            "A: Biçiklistët dhe mopedistët e presin rrugën ose qarkullojnë shpesh, mbas kthesës",
+            "B: Ndalim qarkullimi në të djathtë me biçikleta dhe mopede",
+            "C: Drejtim i detyrueshëm për biçikla dhe mopede"
+        ],
+        correctText: "A: Biçiklistët dhe mopedistët e presin rrugën ose qarkullojnë shpesh, mbas kthesës"
+    },
+    {
+        id: 38,
+        q: "Çfarë pasojash ligjore do të keni po të shkoni 55 km/h në një rrugë 30 kilometërshe?",
+        options: [
+            "A: Gjobë dhe marrje e patentës",
+            "B: Vetëm gjobë",
+            "C: Vetëm marrje e patentës"
+        ],
+        correctText: "A: Gjobë dhe marrje e patentës"
+    },
+    {
+        id: 39,
+        q: "Po funksionon vetëm njëra dritë e shkurtër. Nuk keni dritë rezervë. Është ditë. Çfarë dritash keni të drejtë të përdorni?",
+        options: [
+            "A: Dritat e mjegullës së bashku me të parkimit",
+            "B: Drita e mjegullës së bashku me një dritë të shkurtër",
+            "C: Dritën e shkurtër, sepse një llampë po ndriçon",
+            "D: Dritat e gjata"
+        ],
+        correctText: "A: Dritat e mjegullës së bashku me të parkimit"
+    },
+    {
+        id: 40,
+        image: "40.png",
+        q: "Për çka ju paralajmëron kjo shenjë?",
+        options: [
+            "A: Punime rruge",
+            "B: Vija të bardha /vendkalim këmbësorësh/",
+            "C: Ngushtim rruge",
+            "D: Pengesa në rrugë /gropa/"
+        ],
+        correctText: "D: Pengesa në rrugë /gropa/"
+    },
+    {
+        id: 41,
+        q: "Rreziku për të humbur jetën është më i madh po të goditet një kalimtar nga një makinë që lëviz 50 km/h sesa 30 km/h. Për sa herë është më i madh rreziku?",
+        options: [
+            "A: 2 herë",
+            "B: 4 herë",
+            "C: 6 herë",
+            "D: 8 herë",
+            "E: 15 herë"
+        ],
+        correctText: "D: 8 herë"
+    },
+    {
+        id: 42,
+        image: "42.png",
+        q: "Cila shenjë tregon daljen nga autostrada?",
+        options: [
+            "A: A",
+            "B: B",
+            "C: C",
+            "D: D"
+        ],
+        correctText: "A: A"
+    },
+    {
+        id: 43,
+        image: "43.png",
+        q: "Cilën shenjë duhet ta anashkaloni vetëm nga e djathta?",
+        options: [
+            "A: Shenjën A",
+            "B: Shenjën B",
+            "C: Shenjën C"
+        ],
+        correctText: "A: Shenjën A"
+    },
+    {
+        id: 44,
+        q: "Për çfarë arsye reagojnë zakonisht më shpejt drejtuesit me përvojë se sa drejtuesit e papërvojtur?",
+        options: [
+            "A: Ata (me përvojë) nuk flasin po aq shumë në celular derisa drejtojnë makinën",
+            "B: Ata mbajnë shpesh një shpejtësi më të ulët në qarkullim",
+            "C: Veturat e tyre i kanë frenat më të mira",
+            "D: Ata kanë prirje më të mirë për të paraparë se çka mund të ndodhë në rrugë"
+        ],
+        correctText: "D: Ata kanë prirje më të mirë për të paraparë se çka mund të ndodhë në rrugë"
+    },
+    {
+        id: 45,
+        image: "45.png",
+        q: "Po qarkulloni me shpejtësi 80 km/ h. Çka duhet të bëni në këtë situatë që të jeni më të sigurt dhe me kujdes ambiental?",
+        options: [
+            "A: Kaloj në marsh më të ulët për të zvogëluar shpejtësinë në 50 km/h",
+            "B: Nuk i jap më gaz makinës për të ardhë në shpejtësinë maksimalisht 50 km/h mbas 200 metra",
+            "C: Do të vazhdoj me shpejtësi të pandryshuar edhe 200 metra",
+            "D: Do të frenoj për të zvogëluar shpejtësinë në 50 km/h"
+        ],
+        correctText: "B: Nuk i jap më gaz makinës për të ardhë në shpejtësinë maksimalisht 50 km/h mbas 200 metra"
+    },
+    {
+        id: 46,
+        q: "Jeni ndalur në skaj të rrugës që të pritni një person. Është terr dhe nuk ka drita në rrugë. Cilat drita do të përdorni?",
+        options: [
+            "A: Dritat e parkimit dhe dritat e mbasme",
+            "B: Gjysmëdritat dhe dritat e mbasme",
+            "C: Dritat e bllokazhit (të paralajmërimit)",
+            "D: Dritat e gjata dhe të mbasme"
+        ],
+        correctText: "A: Dritat e parkimit dhe dritat e mbasme"
+    },
+    {
+        id: 47,
+        q: "Nga cilat aksidente shkaktohen më shumë fatkeqësi me humbje jete?",
+        options: [
+            "A: Nga parakalimet",
+            "B: Nga përplasja me automjete dhe me tren",
+            "C: Nga aksidentet me kafshët e egra",
+            "D: Nga aksidentet individuale",
+            "E: Aksidentet nga pas (mbas)"
+        ],
+        correctText: "D: Nga aksidentet individuale"
+    },
+    {
+        id: 48,
+        image: "48.png",
+        q: "Cilin pajim duhet patjetër ta keni me vete në makinë?",
+        options: [
+            "A: Në fotografinë A",
+            "B: Në fotografinë B",
+            "C: Në fotografinë C",
+            "D: Në fotografinë D"
+        ],
+        correctText: "B: Në fotografinë B"
+    },
+    {
+        id: 49,
+        image: "49.png",
+        q: "Po planifikoni ta parakaloni automjetin para jush. Në cilën situatë duhet të jeni të gatshëm që automjeti para jush befàs të kthejë majtas?",
+        options: [
+            "A: Vetëm në situatën A",
+            "B: Vetëm në situatën B",
+            "C: Vetëm në situatën C",
+            "D: Vetëm në situatën D",
+            "E: Në të gjitha situatat"
+        ],
+        correctText: "C: Vetëm në situatën C"
+    },
+    {
+        id: 50,
+        image: "50.png",
+        q: "Qarkulloni në tunel dhe automjetet para po e ngadalësojnë shpejtësinë dhe bëhet një varg automjetesh me lëvizje të ngadalshme. Çka duhet të bëni?",
+        options: [
+            "A: Lëshoj dritat e bllokazhit, ndalem dhe pres derisa të mos ketë varg veturash",
+            "B: Iu afrohem veturave dhe vendosem mjaft në të djathtë",
+            "C: Lëshoj dritat e bllokazhit dhe iu afrohem automjeteve",
+            "D: Lëshoj dritat e bllokazhit dhe mbaj një distancë më të largët (largohem sa duhet)"
+        ],
+        correctText: "D: Lëshoj dritat e bllokazhit dhe mbaj një distancë më të largët (largohem sa duhet)"
+    },
+	    {
+        id: 51,
+        q: "Çka ndodh me drejtimin e automobilit po të ketë pirë drejtuesi alkool?",
+        options: [
+            "A: Marrja e alkoolit e çrregullon përqëndrimin (koncentrimin) dhe e keqëson arsyen (të menduarit)",
+            "B: Sasia e vogël e alkoolit e përmirëson aftësinë tonë drejtuese",
+            "C: Personi i ndikuar nga alkooli bëhet më i vetëdijshëm për rreziqet në trafik dhe e drejton makinën në mënyrë defensive"
+        ],
+        correctText: "A: Marrja e alkoolit e çrregullon përqëndrimin (koncentrimin) dhe e keqëson arsyen (të menduarit)"
+    },
+    {
+        id: 52,
+        image: "52.png",
+        q: "A lejohet parkimi si në këtë fotografi?",
+        options: [
+            "A: Po, sepse rruga është mjaft e gjerë",
+            "B: Po, sepse veturat janë parkuar në krahun e rrugës pa udhëkryq",
+            "C: Jo, sepse veturat janë parkuar në një kryqëzim"
+        ],
+        correctText: "C: Jo, sepse veturat janë parkuar në një kryqëzim"
+    },
+    {
+        id: 53,
+        q: "Për shkak të gabimeve të njerëzve po ndodhin aksidente. Çka mund të bëjmë ne si drejtuesë automjetesh që ta pakësojmë këtë rrezik?",
+        options: [
+            "A: Të drejtoj makinën në çdo situatë me një shpejtësi më të vogël sesa që lejohet",
+            "B: Ta përdor celularin sa më pak",
+            "C: Të mos e mbicmoj aftësinë time si drejtues (të mos mbahem mendjemadh në trafik)",
+            "D: Të respektoj gjithmonë rregullat e trafikut, pa marrë parasysh se çka bëjnë pjesëmarrësit e tjerë në trafik"
+        ],
+        correctText: "C: Të mos e mbicmoj aftësinë time si drejtues (të mos mbahem mendjemadh në trafik)"
+    },
+    {
+        id: 54,
+        image: "54.png",
+        q: "Vetura yte dhe vetura tjetër lëvizin me të njëjtën shpejtësi. Çka vlen kur nis të bashkohen të dyja korsitë?",
+        options: [
+            "A: Shigjetat në korsinë time më japin të drejtë të kaloj i pari në korsinë para nesh",
+            "B: Simbas rregullës së djathtë, unë duhet të jap përparësi veturës tjetër",
+            "C: Do të marrim parasysh situatën ndan njen - tjetrit dhe do ta përshtas shpejtësinë",
+            "D: Shigjetat në korsinë time më japin të kuptoj se unë duhet të jap përparësi"
+        ],
+        correctText: "C: Do të marrim parasysh situatën ndan njen - tjetrit dhe do ta përshtas shpejtësinë"
+    },
+    {
+        id: 55,
+        image: "55.png",
+        q: "Jeni duke lëvizur 70 km/h. Çka duhet të bëni në këtë situatë?",
+        options: [
+            "A: Do ta zvogëloj shpejtësinë dhe duhet të jem më i vëmendshëm",
+            "B: Frenoj dhe vazhdoj me një shpejtësi shumë të vogël",
+            "C: E rris shpejtësinë dhe bëhem më i vëmendshëm",
+            "D: Nuk e ndryshoj shpejtësinë, por duhet të bëhem më i vëmendshëm"
+        ],
+        correctText: "A: Do ta zvogëloj shpejtësinë dhe duhet të jem më i vëmendshëm"
+    },
+    {
+        id: 56,
+        image: "56.png",
+        q: "Keni ndër mend të bleni hanxh në një rrugë me këtë shenjë në hyrje. A keni të drejtë të hyni me veturë në këtë rrugë?",
+        options: [
+            "A: Jo",
+            "B: Po, por me shpejtësi maksimale 30 km/tm",
+            "C: Po, por me shpejtësi hapi"
+        ],
+        correctText: "A: Jo"
+    },
+    {
+        id: 57,
+        image: "57.png",
+        q: "Ku duhet normalisht të jetë niveli i solucionit të frenave?",
+        options: [
+            "A: Te viza A",
+            "B: Te viza B",
+            "C: Te viza C"
+        ],
+        correctText: "B: Te viza B"
+    },
+    {
+        id: 58,
+        image: "58.png",
+        q: "Vetura del papritmas para jush, por ju ia dilni që mos të përplaseni. Si quhet gjithë vija që nga momenti kur e shef rrezikun dhe krejt derisa ndalet vetura?",
+        options: [
+            "A: Vija e reagimit",
+            "B: Vija e ndaljes",
+            "C: Vija e lëvizjes",
+            "D: Vija e frenimit"
+        ],
+        correctText: "B: Vija e ndaljes"
+    },
+    {
+        id: 59,
+        q: "Ku qëndron shkaku kryesor që është shtuar numri i kufizime të shpejtësisë?",
+        options: [
+            "A: Të pakësohet përhapja e dyoksidit të karbonit në natyrë",
+            "B: Rrugët të bëhen më të depërtueshme",
+            "C: Qarkullimi të bëhet më i sigurt, rrjedhimisht më pak vetë të humbin jetën në trafik",
+            "D: Për të përshtatur qarkullimin me vendet e BE"
+        ],
+        correctText: "C: Qarkullimi të bëhet më i sigurt, rrjedhimisht më pak vetë të humbin jetën në trafik"
+    },
+    {
+        id: 60,
+        q: "Në shtator keni ndër mend të shkoni në bjeshkë. Sipas parashikimeve të motit, atje ku keni ndër mend të shkoni, bën moti i ftohtë dhe ka borë në rrugë. A lejohet që vetura të ketë goma me thumba në këtë rast?",
+        options: [
+            "A: Po, po të marr leje nga Trafikverket",
+            "B: Po, sepse bën mot dimëror",
+            "C: Jo, sepse para 1 tetorit nuk lejohet qarkullimi me gomra me thumba",
+            "D: Po, po të marr leje nga policia"
+        ],
+        correctText: "B: Po, sepse bën mot dimëror"
+    },
+    {
+        id: 61,
+        image: "61.png",
+        q: "A lejohet, sipas këtyre shenjave, që të parkojmë makinën, në drejtim të lëvizjes, në krahun e majtë të rrugës, nëse nuk ka ndonjë ndalesë tjetër?",
+        options: [
+            "A: Po, te shenja A",
+            "B: Po, te shenja B",
+            "C: Po, te shenja C",
+            "D: Po, te shenja D"
+        ],
+        correctText: "B: Po, te shenja B"
+    },
+    {
+        id: 62,
+        image: "62.png",
+        q: "Do të niseni djathtas në këtë kryqëzim. Për çka duhet të jeni jashtëzakonisht të kujdesshëm?",
+        options: [
+            "A: Për biçiklistët që po lëvizin nga ana ime e djathtë",
+            "B: Për automjetet që vijnë nga e djathta në këtë udhëkryq",
+            "C: Për automjetet që vijnë nga e majta në këtë udhëkryq"
+        ],
+        correctText: "A: Për biçiklistët që po lëvizin nga ana ime e djathtë"
+    },
+    {
+        id: 63,
+        image: "63.png",
+        q: "A lejohet parakalimi në këto situata si në këto fotografi?",
+        options: [
+            "A: Po, në situatën e fotografisë A",
+            "B: Po, në situatën e fotografisë B",
+            "C: Po, në situatën e fotografisë C",
+            "D: Po, në situatën e fotografisë D",
+            "E: Jo, në asnjë situatë"
+        ],
+        correctText: "D: Po, në situatën e fotografisë D"
+    },
+    {
+        id: 64,
+        image: "64.png",
+        q: "Cila dritë sinjalizon se duhet të ndalemi menjëherë dhe mos të vazhdojmë rrugën?",
+        options: [
+            "A: A",
+            "B: B",
+            "C: C",
+            "D: D"
+        ],
+        correctText: "C: C"
+    },
+    {
+        id: 65,
+        image: "65.png",
+        q: "Do të niseni djathtas. Cili semafor sinjalizon se keni të drejtë të niseni menjëherë?",
+        options: [
+            "A: Semafori në fotografinë A",
+            "B: Semafori në fotografinë B",
+            "C: Të dy semaforët",
+            "D: Jo"
+        ],
+        correctText: "C: Të dy semaforët"
+    },
+    {
+        id: 66,
+        q: "Goditni dhe dëmtoni një biçikletë përskaj rrugës. Vetura juaj nuk është dëmtuar. Nuk keni mundësi të kontaktoni pronarin e bicikletës. Çka duhet të bëni?",
+        options: [
+            "A: Do ta njoftoj kompaninë time të siguracioneve",
+            "B: Nuk bëj gjë sepse nuk është lënduar asnjë person",
+            "C: Do ta shpall rastin në ndonjë gazetë ditore",
+            "D: Do ta njoftoj policinë"
+        ],
+        correctText: "D: Do ta njoftoj policinë"
+    },
+    {
+        id: 67,
+        q: "Jeni ndalur me makinë për të dhënë përparësi kalimi në rrugë një personi. Në çfarë mënyre do të shmangni keqkuptimin me kalimtarin?",
+        options: [
+            "A: Do të bie sirenës për të treguar se do të pres",
+            "B: Përmes lëkundjes së dorës do ia bëj me dije se po i jap përparësi",
+            "C: Do të vezulloj me dritat",
+            "D: Do të vendos kontakt pamor me sy"
+        ],
+        correctText: "D: Do të vendos kontakt pamor me sy"
+    },
+    {
+        id: 68,
+        image: "68.png",
+        q: "Çka do të bëni në këtë situatë?",
+        options: [
+            "A: I jap më shpejt veturës për të kaluar sa më parë përskaj personit dhe qenve",
+            "B: Ngadalësoj shpejtësinë, vendosem mirë në të djathtë duke qenë i gatshëm për të reaguar",
+            "C: Ngadalësoj shpejtësinë, duke kaluar përskaj me një distancë të mjaftueshme",
+            "D: Do të bie sirenës që ta paralajmëroj kalimtarin që të mbaj qent që unë të kaloj"
+        ],
+        correctText: "B: Ngadalësoj shpejtësinë, vendosem mirë në të djathtë duke qenë i gatshëm për të reaguar"
+    },
+    {
+        id: 69,
+        q: "Çka është më vendimtare se sa e madhe do të jetë fuqia kinetike në një çast përplasjeje me makinë?",
+        options: [
+            "A: Pesha bruto e makinës",
+            "B: Gjendja në rrugë",
+            "C: Shpejtësia e automjetit",
+            "D: Koha e reagimit e drejtuesit"
+        ],
+        correctText: "C: Shpejtësia e automjetit"
+    },
+    {
+        id: 70,
+        image: "70.png",
+        q: "Çka sinjalizon shenja paralajmëruese për vazhdimin e lëvizjes së automjetit drejt përpara jush?",
+        options: [
+            "A: Nuk duhet të bëj asgjë se nuk shihet që ka fëmijë në rrugë",
+            "B: Duhet të jem gati për të frenuar sepse ka mundësi që fëmijët befas të ma presin rrugën",
+            "C: Mbasi ta kaloj shenjën, shpejtësia maksimale është 30 km në orë",
+            "D: Po afrohem te një vendkalim të pambikëqyrur afër një kopshti me lodra fëmijësh"
+        ],
+        correctText: "B: Duhet të jem gati për të frenuar sepse ka mundësi që fëmijët befas të ma presin rrugën"
+    }
+];
+
+        // ============================================
+        // LOGJIKA E TESTIT (E PËRDITËSUAR)
+        // ============================================
+
+        let activeQuestions = [];
+        let currentIndex = 0;
+        let userAnswers = {};
+        let timerInterval = null;
+        let timeLeft = 50 * 60;
+        let isReviewMode = false;
+
+        const container = document.getElementById('quiz-container');
+        const counterDisplay = document.getElementById('question-counter');
+        const timerDisplay = document.getElementById('timer');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const reviewBtn = document.getElementById('review-btn');
+
+        // [FUNKSIONI I RI] Përzien pyetjet, duke i mbajtur fotot të lidhura me pyetjet
+        function përziejPyetjet(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 50 * 60;
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    shfaqRezultatin();
+                    alert("Koha mbaroi!");
+                    return;
+                }
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerDisplay.textContent = `Koha: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }, 1000);
+        }
+
+        function krijoKuizin(isReview = false, incorrectIds = []) {
+            container.innerHTML = '';
+            isReviewMode = isReview;
+            
+            if (!isReview) {
+                // Krijon kopje të thellë të pyetjeve origjinale
+                activeQuestions = JSON.parse(JSON.stringify(originalQuestions));
+                
+                // [NDRYSHIMI I RI] Aktivizon përzierjen për çdo provë të re
+                activeQuestions = përziejPyetjet(activeQuestions);
+
+                userAnswers = {};
+                currentIndex = 0;
+                startTimer();
+                submitBtn.style.display = 'inline-block';
+                reviewBtn.style.display = 'none';
+                document.getElementById('result-display').textContent = '';
+                document.getElementById('result-display').className = '';
+            } else {
+                activeQuestions = originalQuestions.filter(q => incorrectIds.includes(q.id));
+                currentIndex = 0;
+                submitBtn.style.display = 'none';
+                reviewBtn.style.display = 'none';
+                clearInterval(timerInterval);
+                timerDisplay.textContent = "Koha: Rishikim";
+            }
+
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            container.innerHTML = '';
+            if (activeQuestions.length === 0) {
+                const box = document.createElement('div');
+                box.className = 'question-box active';
+                box.innerHTML = '<p style="text-align:center; padding:40px; font-size:18px; color:#7f8c8d;">⚠️ Nuk ka pyetje për këtë prov.</p>';
+                container.appendChild(box);
+                counterDisplay.textContent = `Pyetja: 0 / 0`;
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                return;
+            }
+
+            const item = activeQuestions[currentIndex];
+            const box = document.createElement('div');
+            box.className = 'question-box active';
+
+            // Fotot mbeten të lidhura sepse janë pjesë e objektit të pyetjes (item.image)
+            if (item.image) {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'question-image';
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = "Ilustrim për pyetjen " + item.id;
+                
+                img.onclick = function() {
+                    this.classList.toggle('zoomed');
+                };
+
+                imgDiv.appendChild(img);
+                box.appendChild(imgDiv);
+            }
+
+            const title = document.createElement('div');
+            title.className = 'question-title';
+            title.textContent = `${currentIndex + 1}/${activeQuestions.length} - ${item.q}`;
+            box.appendChild(title);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+
+            item.options.forEach((optText) => {
+                const label = document.createElement('label');
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'q_' + item.id;
+                radio.value = optText;
+
+                if (userAnswers[item.id] !== undefined) {
+                    radio.disabled = true;
+                    if (userAnswers[item.id] === optText) {
+                        radio.checked = true;
+                    }
+                    if (optText === item.correctText) {
+                        label.classList.add('correct');
+                    } else if (userAnswers[item.id] === optText && optText !== item.correctText) {
+                        label.classList.add('incorrect');
+                    }
+                }
+
+                radio.onchange = function() {
+                    userAnswers[item.id] = optText;
+                    const allLabels = optionsDiv.querySelectorAll('label');
+                    allLabels.forEach(l => l.querySelector('input').disabled = true);
+
+                    if (optText === item.correctText) {
+                        label.classList.add('correct');
+                    } else {
+                        label.classList.add('incorrect');
+                        allLabels.forEach(l => {
+                            if (l.dataset.text === item.correctText) {
+                                l.classList.add('correct');
+                            }
+                        });
+                    }
+                };
+
+                label.dataset.text = optText;
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(optText));
+                optionsDiv.appendChild(label);
+            });
+
+            box.appendChild(optionsDiv);
+            container.appendChild(box);
+
+            counterDisplay.textContent = `Pyetja: ${currentIndex + 1} / ${activeQuestions.length}`;
+            prevBtn.style.display = currentIndex === 0 ? 'none' : 'inline-block';
+            nextBtn.style.display = currentIndex === activeQuestions.length - 1 ? 'none' : 'inline-block';
+        }
+
+        function ndryshoPyetjen(drejtimi) {
+            if (activeQuestions.length === 0) return;
+            currentIndex += drejtimi;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= activeQuestions.length) currentIndex = activeQuestions.length - 1;
+            renderCurrentQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        let incorrectIdsGlobal = [];
+
+        function shfaqRezultatin() {
+            if (activeQuestions.length === 0) {
+                alert("Nuk ka pyetje për të vlerësuar!");
+                return;
+            }
+            
+            clearInterval(timerInterval);
+            let teSakta = 0;
+            incorrectIdsGlobal = [];
+
+            activeQuestions.forEach(item => {
+                const selectedAns = userAnswers[item.id];
+                if (selectedAns && selectedAns === item.correctText) {
+                    teSakta++;
+                } else {
+                    incorrectIdsGlobal.push(item.id);
+                }
+            });
+
+            const total = activeQuestions.length;
+            const perqindja = (teSakta / total) * 100;
+            const display = document.getElementById('result-display');
+
+            if (perqindja >= 80) {
+                display.className = "passed";
+                display.textContent = `${teSakta}/${total} - Godkänt`;
+            } else {
+                display.className = "failed";
+                display.textContent = `${teSakta}/${total} - Ej godkänt`;
+            }
+
+            submitBtn.style.display = 'none';
+            if (incorrectIdsGlobal.length > 0) {
+                reviewBtn.style.display = 'inline-block';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function shkoTeGabimet() {
+            if (incorrectIdsGlobal.length === 0) return;
+            krijoKuizin(true, incorrectIdsGlobal);
+        }
+
+        function provoPerseri() {
+            // [NDRYSHIMI I RI] Kjo rifillon testin dhe e përzien sërish listën e pyetjeve
+            krijoKuizin(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Fillimi i testit
+        krijoKuizin(false);
+		        // ============================================
+        // FUNKSIONI PËR MESAZHET E SIGURISË
+        // ============================================
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: ${type === 'error' ? '#dc3545' : type === 'warning' ? '#e67e22' : '#003057'};
+                color: white;
+                padding: 14px 24px;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 9999;
+                font-family: Arial, sans-serif;
+                max-width: 90%;
+                animation: fadeIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Shto stilin për animacion
+        const styleAnim = document.createElement('style');
+        styleAnim.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(styleAnim);
+    </script>
+</body>
+</html>

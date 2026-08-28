@@ -1,0 +1,162 @@
+// ============================================
+// MASAT E SIGURISË - PËR TË GJITHA FAQET
+// ============================================
+
+// 1. NDALIM KOPJIMI (Copy)
+document.addEventListener('copy', function(e) {
+    e.preventDefault();
+    if (typeof showToast === 'function') {
+        showToast('⛔ Kopjimi nuk lejohet!', 'error');
+    }
+    return false;
+});
+
+// 2. NDALIM I DJATHTËS SË MIUT (Context Menu)
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    if (typeof showToast === 'function') {
+        showToast('⛔ Klikimi i djathtë nuk lejohet!', 'error');
+    }
+    return false;
+});
+
+// 3. NDALIM ZGJEDHJES SË TEKSTIT (Selection)
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// 4. NDALIM DRAG-AND-DROP (Drag)
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// 5. NDALIM PRINT SCREEN DHE DEVTOOLS
+document.addEventListener('keydown', function(e) {
+    // Ndalim Print Screen
+    if (e.key === 'PrintScreen' || e.key === 'Print') {
+        e.preventDefault();
+        document.body.style.opacity = '0';
+        setTimeout(function() {
+            document.body.style.opacity = '1';
+        }, 100);
+        if (typeof showToast === 'function') {
+            showToast('📸 Screenshot nuk lejohet!', 'error');
+        }
+        return false;
+    }
+    
+    // Ndalim Ctrl+Shift+I (DevTools)
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+        e.preventDefault();
+        if (typeof showToast === 'function') {
+            showToast('⛔ DevTools nuk lejohet!', 'error');
+        }
+        return false;
+    }
+    
+    // Ndalim Ctrl+U (View Source)
+    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+        if (typeof showToast === 'function') {
+            showToast('⛔ Pamja e burimit nuk lejohet!', 'error');
+        }
+        return false;
+    }
+    
+    // Ndalim F12 (DevTools)
+    if (e.key === 'F12') {
+        e.preventDefault();
+        if (typeof showToast === 'function') {
+            showToast('⛔ DevTools nuk lejohet!', 'error');
+        }
+        return false;
+    }
+
+    // Ndalim Ctrl+S (Save)
+    if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault();
+        if (typeof showToast === 'function') {
+            showToast('⛔ Ruajtja e faqes nuk lejohet!', 'error');
+        }
+        return false;
+    }
+});
+
+// ============================================
+// NDALIM SCREENSHOT - VERSION I RREGULLUAR
+// ============================================
+// Nuk thërret kycuPerseri() nëse nuk ekziston
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        setTimeout(function() {
+            if (document.hidden) {
+                // Kontrollo nëse kycuPerseri ekziston para se ta thërrasësh
+                if (typeof window.kycuPerseri === 'function') {
+                    if (typeof showToast === 'function') {
+                        showToast('⛔ Siguria: U krye logout!', 'warning');
+                    }
+                    window.kycuPerseri();
+                }
+            }
+        }, 5000);
+    }
+});
+
+// 7. STILI I PËRGJITHSHËM
+(function addGlobalStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        * {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+        }
+        img, iframe, video {
+            -webkit-user-drag: none !important;
+            user-drag: none !important;
+        }
+        .question-image img, 
+        .modal-content img,
+        .question-image img[onclick] {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+        .security-watermark {
+            pointer-events: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// 8. WATERMARK
+(function addWatermark() {
+    if (!document.querySelector('.security-watermark')) {
+        const watermark = document.createElement('div');
+        watermark.className = 'security-watermark';
+        watermark.style.cssText = `
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(0,48,87,0.06);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            pointer-events: none;
+            z-index: 999;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            text-align: center;
+        `;
+        watermark.textContent = '🔒 TESTET E PATENTË-SHOFERIT • PROPRIETAR';
+        document.body.appendChild(watermark);
+    }
+})();
+
+console.log('🔐 Masat e sigurisë janë aktivizuar!');
+console.log('📸 Screenshot dhe kopjimi janë të bllokuar!');
