@@ -345,7 +345,6 @@
     </div>
 
     <script>
-	<script>
         // ============================================
         // KONSTANTET
         // ============================================
@@ -357,23 +356,19 @@
         const MAX_PAJISJE_PER_PERDORUES = 2;
 
         // ============================================
-        // KONFIGURIMI I FIREBASE - INICIALIZIMI
-        // ============================================
-        // Firebase është inicializuar në firebase-config.js
-        // KËTU NUK E DEKLAROJ PËRSËRI DATABASE-N!
-
-        // ============================================
         // RUAJ DHE RINGARKO PIN-IN NGA SESSION STORAGE
         // ============================================
+        function ruajPinNeSession(pin) {
+            sessionStorage.setItem('user_pin', pin);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Kontrollo nëse ka PIN të ruajtur
             const savedPin = sessionStorage.getItem('user_pin');
             if (savedPin && savedPin.length === 6) {
                 const inputs = document.querySelectorAll('.pin-digit');
                 for (let i = 0; i < savedPin.length && i < inputs.length; i++) {
                     inputs[i].value = savedPin[i];
                 }
-                // Kyçu automatikisht pas 300ms
                 setTimeout(() => {
                     if (typeof verifikoPin === 'function') {
                         verifikoPin();
@@ -382,30 +377,9 @@
             }
         });
 
-        // Funksioni për të ruajtur PIN-in
-        function ruajPinNeSession(pin) {
-            sessionStorage.setItem('user_pin', pin);
-        }
-        // ============================================
-        // KONSTANTET
-        // ============================================
-        const ADMIN_PIN = "123456";
-        const ADMIN_ID = "admin";
-        const PIN_GJATESIA = 6;
-        const MAX_ATTEMPTS = 3;
-        const SESSION_TIMEOUT = 5 * 60 * 1000;
-        const MAX_PAJISJE_PER_PERDORUES = 2;
-
-        // ============================================
-        // KONFIGURIMI I FIREBASE - INICIALIZIMI
-        // ============================================
-        // Firebase është inicializuar në firebase-config.js
-        // KËTU NUK E DEKLAROJ PËRSËRI DATABASE-N!
-
         // ============================================
         // FUNKSIONET FIREBASE
         // ============================================
-        
         async function loadUsersFromFirebase() {
             try {
                 const snapshot = await database.ref('user').once('value');
@@ -469,16 +443,11 @@
         // ============================================
         // FUNKSIONET KRYESORE
         // ============================================
-        
         let cachedUsers = null;
         let cachedDevices = null;
         let cachedStats = {};
 
-        // ============================================
-        // getUsers - TANI GJITHMONË MERR NGA FIREBASE!
-        // ============================================
         async function getUsers() {
-            // Gjithmonë merr të dhënat nga Firebase, jo nga cache
             const users = await loadUsersFromFirebase();
             if (users && Object.keys(users).length > 0) {
                 if (!users[ADMIN_ID]) {
@@ -780,6 +749,7 @@
                     if (data.pin === fullPin) {
                         foundUser = data;
                         foundId = id;
+                        ruajPinNeSession(fullPin);
                         break;
                     }
                 }
@@ -1214,11 +1184,7 @@
             document.getElementById('adminModal').classList.remove('active');
         }
 
-        // ============================================
-        // renderUserList - TANI RIFRESKON GJITHMONË
-        // ============================================
         async function renderUserList() {
-            // Gjithmonë merr të dhënat e freskëta nga Firebase
             const users = await getUsers();
             const list = document.getElementById('userList');
             list.innerHTML = '';
@@ -1418,9 +1384,6 @@
             }
         }
 
-        // ============================================
-        // shtoPerdorues - TANI PËRDITËSON CACHE-IN
-        // ============================================
         async function shtoPerdorues() {
             const nameInput = document.getElementById('newUserName');
             const pinInput = document.getElementById('newUserPin');
@@ -1466,9 +1429,8 @@
                 attempts: 0
             };
             
-            // Ruaj në Firebase dhe përditëso cache-in
             await saveUsersToFirebase(users);
-            cachedUsers = users; // ← PËRDITËSO CACHE-IN!
+            cachedUsers = users;
             
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let prefix = name.substring(0, 3).toUpperCase();
@@ -1486,7 +1448,7 @@
                 roli: 'user'
             };
             await saveDeviceUsers(deviceUsers);
-            cachedDevices = deviceUsers; // ← PËRDITËSO CACHE-IN!
+            cachedDevices = deviceUsers;
             
             nameInput.value = '';
             pinInput.value = '';
