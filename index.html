@@ -345,6 +345,47 @@
     </div>
 
     <script>
+	<script>
+        // ============================================
+        // KONSTANTET
+        // ============================================
+        const ADMIN_PIN = "123456";
+        const ADMIN_ID = "admin";
+        const PIN_GJATESIA = 6;
+        const MAX_ATTEMPTS = 3;
+        const SESSION_TIMEOUT = 5 * 60 * 1000;
+        const MAX_PAJISJE_PER_PERDORUES = 2;
+
+        // ============================================
+        // KONFIGURIMI I FIREBASE - INICIALIZIMI
+        // ============================================
+        // Firebase është inicializuar në firebase-config.js
+        // KËTU NUK E DEKLAROJ PËRSËRI DATABASE-N!
+
+        // ============================================
+        // RUAJ DHE RINGARKO PIN-IN NGA SESSION STORAGE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kontrollo nëse ka PIN të ruajtur
+            const savedPin = sessionStorage.getItem('user_pin');
+            if (savedPin && savedPin.length === 6) {
+                const inputs = document.querySelectorAll('.pin-digit');
+                for (let i = 0; i < savedPin.length && i < inputs.length; i++) {
+                    inputs[i].value = savedPin[i];
+                }
+                // Kyçu automatikisht pas 300ms
+                setTimeout(() => {
+                    if (typeof verifikoPin === 'function') {
+                        verifikoPin();
+                    }
+                }, 300);
+            }
+        });
+
+        // Funksioni për të ruajtur PIN-in
+        function ruajPinNeSession(pin) {
+            sessionStorage.setItem('user_pin', pin);
+        }
         // ============================================
         // KONSTANTET
         // ============================================
