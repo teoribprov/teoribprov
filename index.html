@@ -12,14 +12,12 @@
     <!-- Firebase Config -->
     <script src="firebase-config.js"></script>
     
-    <!-- <script src="security.js"></script> -->  <!-- KOMENTUAR PËR TESTIM -->
+    <!-- security.js është çaktivizuar për të mos bllokuar funksionalitetin -->
+    <!-- <script src="security.js"></script> -->
     
     <style>
-        /* ===== STILET E PLOTA ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
-        
-        /* PIN Overlay */
         .pin-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #003057 0%, #005b8c 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: all 0.5s ease; }
         .pin-overlay.hidden { opacity: 0; pointer-events: none; }
         .pin-box { background: white; padding: 40px 50px; border-radius: 20px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: fadeInUp 0.5s ease; }
@@ -35,16 +33,12 @@
         .pin-box .pin-error { color: #dc3545; font-size: 13px; min-height: 20px; margin-bottom: 12px; }
         .pin-box .user-info { font-size: 13px; color: #6b7a8a; margin-top: 10px; min-height: 20px; }
         .pin-box .user-info.locked { color: #dc3545; font-weight: 600; }
-        
-        /* Session Timer */
         .session-timer { position: fixed; bottom: 20px; right: 20px; background: rgba(0,48,87,0.85); color: white; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: none; align-items: center; gap: 8px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
         .session-timer.show { display: flex; }
         .session-timer .timer-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
         .session-timer .timer-dot.warning { background: #e67e22; }
         .session-timer .timer-dot.danger { background: #e74c3c; animation: pulse 0.5s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-        
-        /* Header */
         .header { background: #003057; color: white; padding: 20px 0; border-bottom: 4px solid #ffcd00; position: sticky; top: 0; z-index: 100; }
         .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .header-left { display: flex; align-items: center; gap: 15px; }
@@ -56,8 +50,6 @@
         .user-badge:hover { background: rgba(255,255,255,0.25); }
         .user-badge .avatar { width: 32px; height: 32px; border-radius: 50%; background: #ffcd00; color: #003057; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
         .user-badge span { font-size: 14px; }
-        
-        /* Main Content */
         .main-container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
         .hero { background: linear-gradient(135deg, #003057 0%, #005b8c 100%); color: white; padding: 40px 50px; border-radius: 16px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
         .hero-text h2 { font-size: 28px; font-weight: 700; margin-bottom: 10px; }
@@ -66,13 +58,9 @@
         .hero-stats .stat { text-align: center; }
         .hero-stats .stat .number { font-size: 32px; font-weight: 700; color: #ffcd00; }
         .hero-stats .stat .label { font-size: 13px; opacity: 0.8; margin-top: 2px; }
-        
-        /* Section Title */
         .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .section-title h3 { font-size: 22px; color: #003057; font-weight: 700; }
         .section-title .badge { background: #e8edf2; color: #003057; padding: 4px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; }
-        
-        /* Prov Grid */
         .prov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
         .prov-card { background: white; border-radius: 14px; padding: 24px 24px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.3s ease; border: 1px solid #e8edf2; cursor: pointer; text-decoration: none; color: inherit; display: block; position: relative; }
         .prov-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,48,87,0.12); border-color: #003057; }
@@ -86,8 +74,6 @@
         .prov-card .card-footer .btn-start { background: #003057; color: white; border: none; padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.3s; text-decoration: none; }
         .prov-card .card-footer .btn-start:hover { background: #002244; }
         .prov-card .card-opened { font-size: 12px; color: #6b7a8a; margin-top: 6px; }
-        
-        /* Stats Section */
         .stats-section { background: white; border-radius: 10px; padding: 12px 16px 14px; border: 1px solid #e8edf2; box-shadow: 0 1px 4px rgba(0,0,0,0.04); margin-top: 10px; }
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
         .stats-header h3 { font-size: 13px; color: #003057; display: flex; align-items: center; gap: 6px; font-weight: 600; }
@@ -106,8 +92,6 @@
         .stat-item .stat-time { font-size: 8px; color: #6b7a8a; margin-top: 1px; border-top: 1px dashed #e8edf2; padding-top: 2px; }
         .stat-item.popular { background: #e8f0fe; border-color: #003057; }
         .stat-item .stat-star { font-size: 9px; margin-left: 2px; }
-        
-        /* Footer */
         .footer { background: #003057; color: white; padding: 30px 20px; margin-top: 50px; text-align: center; }
         .footer-content { max-width: 1200px; margin: 0 auto; }
         .footer p { opacity: 0.7; font-size: 14px; }
@@ -115,8 +99,6 @@
         .footer .footer-links a { color: white; text-decoration: none; font-size: 14px; opacity: 0.8; transition: opacity 0.3s; }
         .footer .footer-links a:hover { opacity: 1; }
         .admin-link { cursor: pointer; }
-        
-        /* Admin Modal */
         .admin-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .admin-modal-overlay.active { display: flex; }
         .admin-modal { background: white; padding: 30px 35px; border-radius: 16px; max-width: 650px; width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalIn 0.3s ease; }
@@ -176,45 +158,15 @@
         .device-row .device-status { font-size: 11px; font-weight: 600; color: #28a745; }
         .device-row .device-status.current { color: #003057; background: #e8f0fe; padding: 2px 10px; border-radius: 12px; }
         .device-empty { color: #6b7a8a; font-size: 13px; padding: 10px 14px; text-align: center; }
-        
-        /* Toast */
         .toast { position: fixed; bottom: 30px; right: 30px; background: #003057; color: white; padding: 14px 24px; border-radius: 10px; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.5s ease; z-index: 999; }
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.error { background: #dc3545; }
         .toast.warning { background: #e67e22; }
         .toast.success { background: #28a745; }
-        
-        /* Watermark */
         .watermark { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: rgba(0,48,87,0.08); font-size: 12px; font-weight: 600; letter-spacing: 2px; pointer-events: none; z-index: 0; text-transform: uppercase; font-family: 'Courier New', monospace; display: none; }
         .watermark.show { display: block; }
-        
-        /* Responsive */
-        @media (max-width: 768px) { 
-            .header-content { flex-direction: column; gap: 15px; text-align: center; } 
-            .hero { flex-direction: column; text-align: center; padding: 30px 20px; } 
-            .hero-text p { max-width: 100%; } 
-            .hero-stats { gap: 20px; padding: 15px 20px; width: 100%; justify-content: center; } 
-            .hero-stats .stat .number { font-size: 24px; } 
-            .prov-grid { grid-template-columns: 1fr; } 
-            .header-right { width: 100%; justify-content: center; } 
-            .stats-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); } 
-            .pin-box { padding: 30px 20px; } 
-            .pin-box .pin-input-group input { width: 38px; height: 48px; font-size: 20px; } 
-            .admin-modal { padding: 20px; } 
-            .admin-modal .user-row { flex-direction: column; align-items: stretch; } 
-            .admin-modal .user-row .user-actions { justify-content: flex-start; } 
-        }
-        @media (max-width: 480px) { 
-            .header-title h1 { font-size: 18px; } 
-            .hero-text h2 { font-size: 22px; } 
-            .hero-stats { flex-wrap: wrap; gap: 15px; } 
-            .stats-grid { grid-template-columns: repeat(2, 1fr); } 
-            .pin-box { padding: 30px 20px; } 
-            .pin-box .pin-input-group input { width: 32px; height: 42px; font-size: 16px; } 
-            .admin-modal .add-user-section .add-user-form { flex-direction: column; } 
-            .admin-modal .add-user-section .add-user-form input { width: 100%; } 
-            .session-timer { font-size: 10px; padding: 5px 12px; bottom: 10px; right: 10px; } 
-        }
+        @media (max-width: 768px) { .header-content { flex-direction: column; gap: 15px; text-align: center; } .hero { flex-direction: column; text-align: center; padding: 30px 20px; } .hero-text p { max-width: 100%; } .hero-stats { gap: 20px; padding: 15px 20px; width: 100%; justify-content: center; } .hero-stats .stat .number { font-size: 24px; } .prov-grid { grid-template-columns: 1fr; } .header-right { width: 100%; justify-content: center; } .stats-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); } .pin-box { padding: 30px 20px; } .pin-box .pin-input-group input { width: 38px; height: 48px; font-size: 20px; } .admin-modal { padding: 20px; } .admin-modal .user-row { flex-direction: column; align-items: stretch; } .admin-modal .user-row .user-actions { justify-content: flex-start; } }
+        @media (max-width: 480px) { .header-title h1 { font-size: 18px; } .hero-text h2 { font-size: 22px; } .hero-stats { flex-wrap: wrap; gap: 15px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .pin-box { padding: 30px 20px; } .pin-box .pin-input-group input { width: 32px; height: 42px; font-size: 16px; } .admin-modal .add-user-section .add-user-form { flex-direction: column; } .admin-modal .add-user-section .add-user-form input { width: 100%; } .session-timer { font-size: 10px; padding: 5px 12px; bottom: 10px; right: 10px; } }
     </style>
 </head>
 <body>
@@ -345,17 +297,6 @@
     </div>
 
     <script>
-	// ============================================
-// PASTRON URL-NË NËSE KA GRUMBULLIM
-// ============================================
-(function pastroUrl() {
-    const currentUrl = window.location.href;
-    // Nëse URL ka /Prov/ të përsëritura
-    if (currentUrl.includes('/Prov') && currentUrl.split('/Prov').length > 2) {
-        // Kthehu te faqja kryesore
-        window.location.href = '/';
-    }
-})();
         // ============================================
         // KONSTANTET
         // ============================================
@@ -614,9 +555,6 @@
             return currentUserId === ADMIN_ID;
         }
 
-        // ============================================
-        // TOAST
-        // ============================================
         function showToast(message, type = '') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -1692,91 +1630,18 @@
         }
 
         // ============================================
-        // MASAT E SIGURISË
+        // MASAT E SIGURISË (TË ZBUTA)
         // ============================================
-        document.addEventListener('copy', function(e) {
-            e.preventDefault();
-            showToast('⛔ Kopjimi nuk lejohet!', 'error');
-            return false;
-        });
-
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             showToast('⛔ Klikimi i djathtë nuk lejohet!', 'error');
             return false;
         });
 
-        document.addEventListener('selectstart', function(e) {
+        document.addEventListener('copy', function(e) {
             e.preventDefault();
+            showToast('⛔ Kopjimi nuk lejohet!', 'error');
             return false;
-        });
-
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'PrintScreen' || e.key === 'Print') {
-                e.preventDefault();
-                showToast('📸 Screenshot nuk lejohet!', 'error');
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
-                e.preventDefault();
-                showToast('⛔ DevTools nuk lejohet!', 'error');
-                return false;
-            }
-            if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
-                showToast('⛔ Pamja e burimit nuk lejohet!', 'error');
-                return false;
-            }
-            if (e.key === 'F12') {
-                e.preventDefault();
-                showToast('⛔ DevTools nuk lejohet!', 'error');
-                return false;
-            }
-            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
-                e.preventDefault();
-                showToast('⛔ Ruajtja e faqes nuk lejohet!', 'error');
-                return false;
-            }
-        });
-
-        document.addEventListener('keyup', function(e) {
-            if (e.key === 'PrintScreen' || e.key === 'Print') {
-                const mainContent = document.getElementById('mainContent');
-                const originalDisplay = mainContent.style.display;
-                mainContent.style.display = 'none';
-                showToast('📸 Screenshot i bllokuar!', 'error');
-                setTimeout(function() {
-                    mainContent.style.display = originalDisplay || 'block';
-                }, 300);
-                return false;
-            }
-        });
-
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                setTimeout(function() {
-                    if (document.hidden) {
-                        if (currentUserId && currentUserData) {
-                            showToast('⛔ Siguria: U krye logout!', 'warning');
-                            kycuPerseri();
-                        }
-                    }
-                }, 5000);
-            }
-        });
-
-        const activityEvents = ['mousemove', 'mousedown', 'click', 'scroll', 'keydown', 'touchstart', 'touchmove'];
-        activityEvents.forEach(event => {
-            document.addEventListener(event, function() {
-                if (currentUserId && currentUserData) {
-                    resetInactivityTimer();
-                }
-            });
         });
 
         // ============================================
