@@ -1761,11 +1761,19 @@
                 }
             } catch(e) {}
             
-            try {
-                await syncData();
-            } catch(e) {
-                console.error('Gabim në sinkronizimin fillestar:', e);
-            }
+           await new Promise((resolve) => {
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            resolve();
+        }
+    });
+});
+
+try {
+    await syncData();
+} catch(e) {
+    console.error('Gabim në sinkronizimin fillestar:', e);
+}
             
             setTimeout(function() {
                 kontrolloTeGjithaKohet();
