@@ -943,9 +943,8 @@
 function hapProv(provId, file) {
     regjistroHapjen(provId);
     
-    // Përdor URL absolute me klasën URL për të shmangur çdo duplikim
-    const targetUrl = new URL(file, window.location.origin);
-    window.location.href = targetUrl.href;
+    // Rregullon automatikisht rrugëtimin pavarësisht strukturës
+    window.location.href = encodeURI(file);
 }
 
         // ============================================
