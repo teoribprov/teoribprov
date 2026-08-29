@@ -133,30 +133,34 @@ document.addEventListener('visibilitychange', function() {
 })();
 
 // 8. WATERMARK
-(function addWatermark() {
-    if (!document.querySelector('.security-watermark')) {
-        const watermark = document.createElement('div');
-        watermark.className = 'security-watermark';
-        watermark.style.cssText = `
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(0,48,87,0.06);
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            pointer-events: none;
-            z-index: 999;
-            text-transform: uppercase;
-            font-family: 'Courier New', monospace;
-            width: 100%;
-            text-align: center;
-        `;
-        watermark.textContent = '🔒 TESTET E PATENTË-SHOFERIT • PROPRIETAR';
-        document.body.appendChild(watermark);
-    }
-})();
+function addWatermark() {
+    if (!document.body || document.querySelector('.security-watermark')) return;
 
-console.log('🔐 Masat e sigurisë janë aktivizuar!');
-console.log('📸 Screenshot dhe kopjimi janë të bllokuar!');
+    const watermark = document.createElement('div');
+    watermark.className = 'security-watermark';
+    watermark.style.cssText = `
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(0,48,87,0.06);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        pointer-events: none;
+        z-index: 999;
+        text-transform: uppercase;
+        font-family: 'Courier New', monospace;
+        width: 100%;
+        text-align: center;
+    `;
+    watermark.textContent = '🔒 TESTET E PATENTË-SHOFERIT • PROPRIETAR';
+    document.body.appendChild(watermark);
+}
+
+// Ekzekutohet vetëm pasi faqja të jetë ngarkuar plotësisht
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addWatermark);
+} else {
+    addWatermark();
+}
