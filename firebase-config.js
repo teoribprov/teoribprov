@@ -12,15 +12,17 @@ const firebaseConfig = {
 // Inicializo Firebase
 try {
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
     console.log('🔥 Firebase u inicializua!');
 } catch(e) {
     console.log('⚠️ Firebase ishte inicializuar tashmë');
 }
 
-// Nëse database nuk është përcaktuar, përcaktoje
-if (typeof database === 'undefined') {
-    var database = firebase.database();
+// Përcakto database në mënyrë të sigurt
+let database;
+try {
+    database = firebase.database();
+} catch(e) {
+    console.log('⚠️ Gabim në marrjen e database:', e);
 }
 
-console.log('🔥 Firebase u inicializua!');
+console.log('🔥 Firebase gati!');
