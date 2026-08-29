@@ -942,7 +942,7 @@
 
 function hapProv(provId, file) {
     regjistroHapjen(provId);
-    window.location.href = file;
+    window.location.href = window.location.origin + '/' + file.replace(/^\/+/, '');
 }
 
         // ============================================
