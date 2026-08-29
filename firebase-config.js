@@ -26,3 +26,7 @@ try {
 }
 
 console.log('🔥 Firebase gati!');
+// Kyçu anonimisht që të lejohet leximi/shkrimi sipas Security Rules të reja
+firebase.auth().signInAnonymously().catch(function(error) {
+    console.error("❌ Gabim në autentifikimin anonim:", error);
+});
