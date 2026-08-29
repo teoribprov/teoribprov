@@ -345,6 +345,17 @@
     </div>
 
     <script>
+	// ============================================
+// PASTRON URL-NË NËSE KA GRUMBULLIM
+// ============================================
+(function pastroUrl() {
+    const currentUrl = window.location.href;
+    // Nëse URL ka /Prov/ të përsëritura
+    if (currentUrl.includes('/Prov') && currentUrl.split('/Prov').length > 2) {
+        // Kthehu te faqja kryesore
+        window.location.href = '/';
+    }
+})();
         // ============================================
         // KONSTANTET
         // ============================================
