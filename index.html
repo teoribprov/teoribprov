@@ -942,7 +942,10 @@
 
 function hapProv(provId, file) {
     regjistroHapjen(provId);
-    window.location.href = window.location.origin + '/' + file.replace(/^\/+/, '');
+    
+    // Përdor URL absolute me klasën URL për të shmangur çdo duplikim
+    const targetUrl = new URL(file, window.location.origin);
+    window.location.href = targetUrl.href;
 }
 
         // ============================================
