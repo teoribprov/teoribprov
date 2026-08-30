@@ -429,6 +429,7 @@
         let cachedUsers = null;
         let cachedDevices = null;
         let cachedStats = {};
+        let cachedAdminDevices = null;
 
         async function getUsers() {
             if (cachedUsers) return cachedUsers;
@@ -812,12 +813,13 @@
         }
 
         currentUserId = foundId;
-        currentUserData = {
-            name: data.name,
-            avatar: data.avatar,
-            totalSeconds: data.totalSeconds || 0,
-            _sessionStart: Date.now()
-        };
+currentUserData = {
+    name: data.name,
+    avatar: data.avatar,
+    totalSeconds: data.totalSeconds || 0,
+    _sessionStart: Date.now(),
+    _adminPin: fullPin
+};
 
         pinOverlay.classList.add('hidden');
         resetPinInputs();
