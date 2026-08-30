@@ -842,9 +842,17 @@ currentUserData = {
         }, 200);
 
     } catch (error) {
-        console.error('Gabim në verifikimin e PIN:', error);
+    console.error('Gabim në verifikimin e PIN:', error);
+    if (error.code === 'resource-exhausted') {
+        showPinError('⏱️ ' + error.message);
+        pinInputs.forEach(input => input.disabled = true);
+        setTimeout(() => {
+            pinInputs.forEach(input => input.disabled = false);
+        }, 30000);
+    } else {
         showPinError('❌ Gabim serveri! Provoni përsëri.');
     }
+}
 
     isProcessing = false;
 }
