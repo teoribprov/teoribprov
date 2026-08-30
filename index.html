@@ -1101,34 +1101,29 @@
         // SINCRONIZIMI
         // ============================================
         async function syncData() {
-            showToast('☁️ Duke sinkronizuar të dhënat...', '');
-            
-            try {
-                const users = await loadUsersFromFirebase();
-                const devices = await loadDevicesFromFirebase();
-                
-                if (users && Object.keys(users).length > 0) {
-                    cachedUsers = users;
-                }
-                if (devices && Object.keys(devices).length > 0) {
-                    cachedDevices = devices;
-                }
-                
-                if (currentUserId) {
-                    const stats = await loadStatsFromFirebase(currentUserId);
-                    if (stats) {
-                        cachedStats[currentUserId] = stats;
-                    }
-                }
-                
-                await renderProvat();
-                await renderStats();
-                showToast('✅ Të dhënat u sinkronizuan!', 'success');
-            } catch (error) {
-                console.error('Gabim në sinkronizim:', error);
-                showToast('❌ Gabim në sinkronizim!', 'error');
+    showToast('☁️ Duke sinkronizuar të dhënat...', '');
+    
+    try {
+        if (currentUserId) {
+            const stats = await loadStatsFromFirebase(currentUserId);
+            if (stats) {
+                cachedStats[currentUserId] = stats;
+            }
+        } else {
+            const stats = await loadStatsFromFirebase('admin');
+            if (stats) {
+                cachedStats['admin'] = stats;
             }
         }
+        
+        await renderProvat();
+        await renderStats();
+        showToast('✅ Të dhënat u sinkronizuan!', 'success');
+    } catch (error) {
+        console.error('Gabim në sinkronizim:', error);
+        showToast('❌ Gabim në sinkronizim!', 'error');
+    }
+}
 
         // ============================================
         // ADMIN PANEL
