@@ -1143,39 +1143,55 @@
         }
 
         async function renderUserList() {
-            const users = await getUsers();
-            const list = document.getElementById('userList');
-            list.innerHTML = '';
+    const list = document.getElementById('userList');
+    list.innerHTML = '';
 
-            for (const [id, data] of Object.entries(users)) {
-                const totalTime = formatTime(data.totalSeconds || 0);
-                const isAdminUser = id === ADMIN_ID;
-                const isLocked = data.locked === true;
-                const attempts = data.attempts || 0;
-                
-                const row = document.createElement('div');
-                row.className = 'user-row';
-                row.innerHTML = `
-                    <div class="user-info">
-                        <div class="user-avatar">${data.avatar || data.name.charAt(0).toUpperCase() || '👤'}</div>
-                        <div class="user-details">
-                            <div class="user-name">${data.name} ${isAdminUser ? '⭐' : ''}</div>
-                            <div class="user-stats">🔑 ${data.pin} • 👁️ ${data.count || 0} hyrje • ⏱️ ${totalTime}</div>
-                            <div class="user-status ${isLocked ? 'locked' : 'active'}">
-                                ${isLocked ? '🔒 I bllokuar (' + attempts + '/' + MAX_ATTEMPTS + ')' : '✅ Aktiv'}
-                            </div>
-                        </div>
+    if (!isAdmin() || !currentUserData || !currentUserData._adminPin) {
+        list.innerHTML = '<div class="device-empty">⛔ Akses i paautorizuar</div>';
+        return;
+    }
+
+    let users;
+    try {
+        const callGetAdminData = firebase.app().functions('europe-west1').httpsCallable('getAdminDataServer');
+        const result = await callGetAdminData({ pin: currentUserData._adminPin });
+        users = result.data.users;
+        cachedAdminDevices = result.data.devices;
+    } catch (error) {
+        console.error('Gabim në marrjen e të dhënave admin:', error);
+        list.innerHTML = '<div class="device-empty">⛔ Gabim në autorizim</div>';
+        return;
+    }
+
+    for (const [id, data] of Object.entries(users)) {
+        const totalTime = formatTime(data.totalSeconds || 0);
+        const isAdminUser = id === ADMIN_ID;
+        const isLocked = data.locked === true;
+        const attempts = data.attempts || 0;
+        
+        const row = document.createElement('div');
+        row.className = 'user-row';
+        row.innerHTML = `
+            <div class="user-info">
+                <div class="user-avatar">${data.avatar || data.name.charAt(0).toUpperCase() || '👤'}</div>
+                <div class="user-details">
+                    <div class="user-name">${data.name} ${isAdminUser ? '⭐' : ''}</div>
+                    <div class="user-stats">🔑 ${data.pin} • 👁️ ${data.count || 0} hyrje • ⏱️ ${totalTime}</div>
+                    <div class="user-status ${isLocked ? 'locked' : 'active'}">
+                        ${isLocked ? '🔒 I bllokuar (' + attempts + '/' + MAX_ATTEMPTS + ')' : '✅ Aktiv'}
                     </div>
-                    <div class="user-actions">
-                        <input type="text" class="pin-edit" value="${data.pin}" maxlength="${PIN_GJATESIA}" pattern="[0-9]*" data-id="${id}" ${isLocked && !isAdminUser ? 'disabled' : ''}>
-                        <button class="btn-save" onclick="ndryshoPin('${id}')">💾</button>
-                        ${!isAdminUser ? (isLocked ? `<button class="btn-unlock" onclick="unlockUser('${id}')">🔓 Zhblloko</button>` : '') : ''}
-                        ${!isAdminUser ? `<button class="btn-delete-user" onclick="fshijPerdorues('${id}')">🗑️</button>` : ''}
-                    </div>
-                `;
-                list.appendChild(row);
-            }
-        }
+                </div>
+            </div>
+            <div class="user-actions">
+                <input type="text" class="pin-edit" value="${data.pin}" maxlength="${PIN_GJATESIA}" pattern="[0-9]*" data-id="${id}" ${isLocked && !isAdminUser ? 'disabled' : ''}>
+                <button class="btn-save" onclick="ndryshoPin('${id}')">💾</button>
+                ${!isAdminUser ? (isLocked ? `<button class="btn-unlock" onclick="unlockUser('${id}')">🔓 Zhblloko</button>` : '') : ''}
+                ${!isAdminUser ? `<button class="btn-delete-user" onclick="fshijPerdorues('${id}')">🗑️</button>` : ''}
+            </div>
+        `;
+        list.appendChild(row);
+    }
+}
 
         async function renderDeviceList() {
             const deviceUsers = await getDeviceUsers();
