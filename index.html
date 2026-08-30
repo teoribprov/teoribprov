@@ -1100,33 +1100,27 @@
         // ============================================
         // SINCRONIZIMI
         // ============================================
+        // ============================================
+        // SINCRONIZIMI (SIGURTË - VETËM ME CLOUD FUNCTIONS)
+        // ============================================
         async function syncData() {
-            showToast('☁️ Duke sinkronizuar të dhënat...', '');
-            
+            // Nëse përdoruesi nuk është i kyçur si Admin, MOS shkarko asgjë te klienti!
+            if (!currentUserId || currentUserId !== 'admin') {
+                return;
+            }
+
             try {
-                const users = await loadUsersFromFirebase();
-                const devices = await loadDevicesFromFirebase();
+                const callAdminData = firebase.app().functions('europe-west1').httpsCallable('getAdminDataServer');
+                const result = await callAdminData({ adminId: currentUserId });
                 
-                if (users && Object.keys(users).length > 0) {
-                    cachedUsers = users;
-                }
-                if (devices && Object.keys(devices).length > 0) {
-                    cachedDevices = devices;
-                }
-                
-                if (currentUserId) {
-                    const stats = await loadStatsFromFirebase(currentUserId);
-                    if (stats) {
-                        cachedStats[currentUserId] = stats;
+                if (result.data && result.data.success) {
+                    const users = result.data.users;
+                    if (typeof renderAdminPanel === 'function') {
+                        renderAdminPanel(users);
                     }
                 }
-                
-                await renderProvat();
-                await renderStats();
-                showToast('✅ Të dhënat u sinkronizuan!', 'success');
             } catch (error) {
-                console.error('Gabim në sinkronizim:', error);
-                showToast('❌ Gabim në sinkronizim!', 'error');
+                console.error('Gabim gjatë marrjes së të dhënave të Admin-it:', error);
             }
         }
 
