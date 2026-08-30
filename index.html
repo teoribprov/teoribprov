@@ -844,7 +844,21 @@ currentUserData = {
     } catch (error) {
     console.error('Gabim në verifikimin e PIN:', error);
     if (error.message && error.message.includes('Shumë prova')) {
-        showPinError('⏱️ ' + error.message);
+        const secMatch = error.message.match(/(\d+)\s*sekondash/);
+let displayMsg = error.message;
+if (secMatch) {
+    const totalSec = parseInt(secMatch[1]);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    let timeStr = '';
+    if (min > 0) {
+        timeStr = min + ' min' + (sec > 0 ? ' e ' + sec + ' sek' : '');
+    } else {
+        timeStr = sec + ' sekonda';
+    }
+    displayMsg = 'Shumë prova! Provoni sërish pas ' + timeStr + '.';
+}
+showPinError('⏱️ ' + displayMsg);
         pinInputs.forEach(input => input.disabled = true);
         setTimeout(() => {
             pinInputs.forEach(input => input.disabled = false);
