@@ -917,21 +917,24 @@
         // ============================================
         // STATISTIKAT E PROVAVE
         // ============================================
-        function regjistroHapjen(provId) {
-            getStats().then(stats => {
-                const now = new Date();
-                const timeStr = now.toLocaleString('sq-AL', {
-                    day: '2-digit', month: '2-digit', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
-                if (!stats[provId]) stats[provId] = { count: 0, lastTime: null, totalSeconds: 0 };
-                stats[provId].count = (stats[provId].count || 0) + 1;
-                stats[provId].lastTime = timeStr;
-                saveStats(stats);
-            });
-            const timerKey = 'timer_start_' + currentUserId + '_' + provId;
-            localStorage.setItem(timerKey, Date.now().toString());
-        }
+      async function regjistroHapjen(provId) {
+    try {
+        const stats = await getStats();
+        const now = new Date();
+        const timeStr = now.toLocaleString('sq-AL', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        if (!stats[provId]) stats[provId] = { count: 0, lastTime: null, totalSeconds: 0 };
+        stats[provId].count = (stats[provId].count || 0) + 1;
+        stats[provId].lastTime = timeStr;
+        await saveStats(stats);
+    } catch(e) {
+        console.error('Gabim në regjistrimin e hapjes:', e);
+    }
+    const timerKey = 'timer_start_' + currentUserId + '_' + provId;
+    localStorage.setItem(timerKey, Date.now().toString());
+}
 
         function regjistroKohen(provId) {
             const timerKey = 'timer_start_' + currentUserId + '_' + provId;
@@ -972,9 +975,10 @@
             });
         }
 
-        function hapProv(provId, file) {
-            regjistroHapjen(provId);
-            window.location.href = file;
+        async function hapProv(provId, file) {
+    await regjistroHapjen(provId);
+    window.location.href = file;
+}
         }
 
         // ============================================
