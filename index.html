@@ -719,157 +719,133 @@
         // VERIFIKO PIN (ME FIREBASE)
         // ============================================
         async function verifikoPin() {
-            if (isProcessing) return;
-            const fullPin = updatePinValue();
-            if (fullPin.length !== PIN_GJATESIA) return;
+    if (isProcessing) return;
+    const fullPin = updatePinValue();
+    if (fullPin.length !== PIN_GJATESIA) return;
 
-            isProcessing = true;
+    isProcessing = true;
 
-            try {
-                const users = await getUsers();
-                let foundUser = null;
-                let foundId = null;
+    try {
+        const callVerifikoPinServer = firebase.app().functions('europe-west1').httpsCallable('verifikoPinServer');
+        const result = await callVerifikoPinServer({ pin: fullPin });
+        const data = result.data;
 
-                for (const [id, data] of Object.entries(users)) {
-                    if (data.pin === fullPin) {
-                        foundUser = data;
-                        foundId = id;
-                        break;
-                    }
-                }
-
-                if (!foundUser) {
-                    showPinError('❌ PIN i gabuar!');
-                    resetPinInputs();
-                    isProcessing = false;
-                    return;
-                }
-
-                if (foundId !== ADMIN_ID && foundUser.locked === true) {
-                    showUserInfo('🔒 Përdoruesi është i bllokuar! Kontaktoni Admin-in.', 'locked');
-                    pinInputs.forEach(input => input.disabled = true);
-                    lockIcon.textContent = '🔒';
-                    showToast('⛔ Përdoruesi ' + foundUser.name + ' është i bllokuar!', 'error');
-                    isProcessing = false;
-                    return;
-                }
-
-                const deviceUsers = await getDeviceUsers();
-                let userCode = null;
-                let deviceData = null;
-                
-                for (const [code, data] of Object.entries(deviceUsers)) {
-                    if (data.emri === foundUser.name) {
-                        userCode = code;
-                        deviceData = data;
-                        break;
-                    }
-                }
-
-                if (!userCode) {
-                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                    let prefix = foundUser.name.substring(0, 3).toUpperCase();
-                    let newCode = prefix;
-                    for (let i = 0; i < 4; i++) {
-                        newCode += chars.charAt(Math.floor(Math.random() * chars.length));
-                    }
-                    while (deviceUsers[newCode]) {
-                        newCode = prefix;
-                        for (let i = 0; i < 4; i++) {
-                            newCode += chars.charAt(Math.floor(Math.random() * chars.length));
-                        }
-                    }
-                    deviceUsers[newCode] = {
-                        emri: foundUser.name,
-                        pin: foundUser.pin,
-                        kod: newCode,
-                        pajisje: [],
-                        maxPajisje: foundId === ADMIN_ID ? 3 : MAX_PAJISJE_PER_PERDORUES,
-                        roli: foundId === ADMIN_ID ? 'admin' : 'user'
-                    };
-                    userCode = newCode;
-                    deviceData = deviceUsers[newCode];
-                    await saveDeviceUsers(deviceUsers);
-                    console.log('✅ Kod i krijuar për ' + foundUser.name + ': ' + newCode);
-                }
-
-                const fingerprint = getCurrentFingerprint();
-                if (!deviceData.pajisje) deviceData.pajisje = [];
-
-                if (!deviceData.pajisje.includes(fingerprint)) {
-                    if (foundId === ADMIN_ID) {
-                        if (deviceData.pajisje.length < deviceData.maxPajisje) {
-                            deviceData.pajisje.push(fingerprint);
-                            await saveDeviceUsers(deviceUsers);
-                            showToast(`✅ Pajisja e Admin-it u regjistrua!`, 'success');
-                        }
-                        localStorage.setItem('user_auth_code', userCode);
-                        localStorage.setItem('user_device_id', fingerprint);
-                    } else {
-                        if (deviceData.pajisje.length >= deviceData.maxPajisje) {
-                            showUserInfo(`❌ Maksimumi i pajisjeve (${deviceData.maxPajisje})! Kontaktoni Admin-in.`, 'locked');
-                            pinInputs.forEach(input => input.disabled = true);
-                            lockIcon.textContent = '🔒';
-                            showToast(`❌ Maksimumi ${deviceData.maxPajisje} pajisje!`, 'error');
-                            isProcessing = false;
-                            return;
-                        }
-                        deviceData.pajisje.push(fingerprint);
-                        await saveDeviceUsers(deviceUsers);
-                        localStorage.setItem('user_auth_code', userCode);
-                        localStorage.setItem('user_device_id', fingerprint);
-                        showToast(`✅ Pajisja u regjistrua! (${deviceData.pajisje.length}/${deviceData.maxPajisje})`, 'success');
-                    }
-                } else {
-                    localStorage.setItem('user_auth_code', userCode);
-                    localStorage.setItem('user_device_id', fingerprint);
-                }
-
-                const now = new Date();
-                const timeStr = now.toLocaleString('sq-AL', {
-                    day: '2-digit', month: '2-digit', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
-
-                foundUser.count = (foundUser.count || 0) + 1;
-                foundUser.lastTime = timeStr;
-                foundUser._sessionStart = Date.now();
-                if (foundId !== ADMIN_ID) foundUser.attempts = 0;
-
-                users[foundId] = foundUser;
-                await saveUsers(users);
-
-                currentUserId = foundId;
-                currentUserData = foundUser;
-
-                pinOverlay.classList.add('hidden');
+        if (!data.success) {
+            if (data.reason === 'locked') {
+                showUserInfo('🔒 Përdoruesi është i bllokuar! Kontaktoni Admin-in.', 'locked');
+                pinInputs.forEach(input => input.disabled = true);
+                lockIcon.textContent = '🔒';
+                showToast('⛔ Përdoruesi është i bllokuar!', 'error');
+            } else {
+                showPinError('❌ PIN i gabuar!');
                 resetPinInputs();
-                lockIcon.textContent = '🔐';
-                document.body.focus();
-
-                document.getElementById('userName').textContent = foundUser.name;
-                document.getElementById('userAvatar').textContent = foundUser.avatar || foundUser.name.charAt(0).toUpperCase();
-
-                updateStatsTitle();
-                document.getElementById('watermark').classList.add('show');
-                showToast('✅ Mirë se vini, ' + foundUser.name + '!', 'success');
-                
-                resetInactivityTimer();
-                
-                setTimeout(function() {
-                    kontrolloTeGjithaKohet();
-                    renderProvat();
-                    renderStats();
-                }, 200);
-
-            } catch (error) {
-                console.error('Gabim në verifikimin e PIN:', error);
-                showPinError('❌ Gabim serveri! Provoni përsëri.');
             }
-            
             isProcessing = false;
+            return;
         }
 
+        const foundId = data.userId;
+
+        const deviceUsers = await getDeviceUsers();
+        let userCode = null;
+        let deviceData = null;
+
+        for (const [code, d] of Object.entries(deviceUsers)) {
+            if (d.emri === data.name) {
+                userCode = code;
+                deviceData = d;
+                break;
+            }
+        }
+
+        if (!userCode) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let prefix = data.name.substring(0, 3).toUpperCase();
+            let newCode = prefix;
+            for (let i = 0; i < 4; i++) newCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            while (deviceUsers[newCode]) {
+                newCode = prefix;
+                for (let i = 0; i < 4; i++) newCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            deviceUsers[newCode] = {
+                emri: data.name,
+                kod: newCode,
+                pajisje: [],
+                maxPajisje: data.isAdmin ? 3 : MAX_PAJISJE_PER_PERDORUES,
+                roli: data.isAdmin ? 'admin' : 'user'
+            };
+            userCode = newCode;
+            deviceData = deviceUsers[newCode];
+            await saveDeviceUsers(deviceUsers);
+        }
+
+        const fingerprint = getCurrentFingerprint();
+        if (!deviceData.pajisje) deviceData.pajisje = [];
+
+        if (!deviceData.pajisje.includes(fingerprint)) {
+            if (data.isAdmin) {
+                if (deviceData.pajisje.length < deviceData.maxPajisje) {
+                    deviceData.pajisje.push(fingerprint);
+                    await saveDeviceUsers(deviceUsers);
+                    showToast('✅ Pajisja e Admin-it u regjistrua!', 'success');
+                }
+                localStorage.setItem('user_auth_code', userCode);
+                localStorage.setItem('user_device_id', fingerprint);
+            } else {
+                if (deviceData.pajisje.length >= deviceData.maxPajisje) {
+                    showUserInfo(`❌ Maksimumi i pajisjeve (${deviceData.maxPajisje})! Kontaktoni Admin-in.`, 'locked');
+                    pinInputs.forEach(input => input.disabled = true);
+                    lockIcon.textContent = '🔒';
+                    showToast(`❌ Maksimumi ${deviceData.maxPajisje} pajisje!`, 'error');
+                    isProcessing = false;
+                    return;
+                }
+                deviceData.pajisje.push(fingerprint);
+                await saveDeviceUsers(deviceUsers);
+                localStorage.setItem('user_auth_code', userCode);
+                localStorage.setItem('user_device_id', fingerprint);
+                showToast(`✅ Pajisja u regjistrua! (${deviceData.pajisje.length}/${deviceData.maxPajisje})`, 'success');
+            }
+        } else {
+            localStorage.setItem('user_auth_code', userCode);
+            localStorage.setItem('user_device_id', fingerprint);
+        }
+
+        currentUserId = foundId;
+        currentUserData = {
+            name: data.name,
+            avatar: data.avatar,
+            totalSeconds: data.totalSeconds || 0,
+            _sessionStart: Date.now()
+        };
+
+        pinOverlay.classList.add('hidden');
+        resetPinInputs();
+        lockIcon.textContent = '🔐';
+        document.body.focus();
+
+        document.getElementById('userName').textContent = data.name;
+        document.getElementById('userAvatar').textContent = data.avatar;
+
+        updateStatsTitle();
+        document.getElementById('watermark').classList.add('show');
+        showToast('✅ Mirë se vini, ' + data.name + '!', 'success');
+
+        resetInactivityTimer();
+
+        setTimeout(function() {
+            kontrolloTeGjithaKohet();
+            renderProvat();
+            renderStats();
+        }, 200);
+
+    } catch (error) {
+        console.error('Gabim në verifikimin e PIN:', error);
+        showPinError('❌ Gabim serveri! Provoni përsëri.');
+    }
+
+    isProcessing = false;
+}
         // ============================================
         // KYÇU PËRSËRI
         // ============================================
