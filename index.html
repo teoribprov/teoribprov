@@ -363,23 +363,13 @@
         // ============================================
         
         async function loadUsersFromFirebase() {
-            try {
-                const snapshot = await database.ref('user').once('value');
-                return snapshot.val() || {};
-            } catch (e) {
-                console.error('Gabim në ngarkimin e përdoruesve:', e);
-                return null;
-            }
+            // Siguria: Mos lexo asnjë përdorues direkt nga klienti!
+            return null;
         }
 
         async function saveUsersToFirebase(users) {
-            try {
-                await database.ref('user').set(users);
-                return true;
-            } catch (e) {
-                console.error('Gabim në ruajtjen e përdoruesve:', e);
-                return false;
-            }
+            // Siguria: Mos ruaj përdorues direkt nga klienti!
+            return false;
         }
 
         async function loadStatsFromFirebase(userId) {
@@ -421,7 +411,6 @@
                 return false;
             }
         }
-
         // ============================================
         // FUNKSIONET KRYESORE
         // ============================================
