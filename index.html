@@ -843,7 +843,7 @@ currentUserData = {
 
     } catch (error) {
     console.error('Gabim në verifikimin e PIN:', error);
-    if (error.code === 'resource-exhausted') {
+    if (error.message && error.message.includes('Shumë prova')) {
         showPinError('⏱️ ' + error.message);
         pinInputs.forEach(input => input.disabled = true);
         setTimeout(() => {
