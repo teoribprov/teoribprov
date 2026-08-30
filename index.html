@@ -1261,175 +1261,134 @@ currentUserData = {
         // ============================================
         // FUNKSIONET ADMIN
         // ============================================
-        async function ndryshoPin(userId) {
-            const row = document.querySelector(`.user-row .pin-edit[data-id="${userId}"]`);
-            if (!row) return;
-            if (row.disabled) {
-                showToast('⛔ Ky përdorues është i bllokuar!', 'error');
-                return;
-            }
-            const newPin = row.value.trim();
-            if (newPin.length !== PIN_GJATESIA || !/^\d{6}$/.test(newPin)) {
-                showToast('❌ PIN-i duhet të ketë ' + PIN_GJATESIA + ' shifra!', 'error');
-                const users = await getUsers();
-                if (users[userId]) row.value = users[userId].pin;
-                return;
-            }
-            
-            const users = await getUsers();
-            for (const [id, data] of Object.entries(users)) {
-                if (id !== userId && data.pin === newPin) {
-                    showToast('❌ Ky PIN është në përdorim!', 'error');
-                    row.value = users[userId].pin;
-                    return;
-                }
-            }
-            
-            if (users[userId]) {
-                users[userId].pin = newPin;
-                if (users[userId].locked) {
-                    users[userId].locked = false;
-                    users[userId].attempts = 0;
-                }
-                await saveUsers(users);
-                
-                const deviceUsers = await getDeviceUsers();
-                for (const [code, data] of Object.entries(deviceUsers)) {
-                    if (data.emri === users[userId].name) {
-                        data.pin = newPin;
-                        await saveDeviceUsers(deviceUsers);
-                        break;
-                    }
-                }
-                
-                if (userId === ADMIN_ID) {
-                    currentUserData = users[userId];
-                    showToast('✅ PIN-i i Admin-it u ndryshua!', 'success');
-                } else {
-                    showToast('✅ PIN-i u ndryshua për ' + users[userId].name, 'success');
-                }
-                renderUserList();
-            }
-        }
+async function ndryshoPin(userId) {
+    const row = document.querySelector(`.user-row .pin-edit[data-id="${userId}"]`);
+    if (!row) return;
+    if (row.disabled) {
+        showToast('⛔ Ky përdorues është i bllokuar!', 'error');
+        return;
+    }
+    const newPin = row.value.trim();
+    if (newPin.length !== PIN_GJATESIA || !/^\d{6}$/.test(newPin)) {
+        showToast('❌ PIN-i duhet të ketë ' + PIN_GJATESIA + ' shifra!', 'error');
+        return;
+    }
 
-        async function fshijPerdorues(userId) {
-            if (userId === ADMIN_ID) {
-                showToast('❌ Nuk mund të fshini admin-in!', 'error');
-                return;
-            }
-            if (!confirm('A jeni i sigurt që doni të fshini këtë përdorues?')) return;
-            
-            const users = await getUsers();
-            const userName = users[userId]?.name;
-            
-            const deviceUsers = await getDeviceUsers();
-            for (const [code, data] of Object.entries(deviceUsers)) {
-                if (data.emri === userName) {
-                    delete deviceUsers[code];
-                    await saveDeviceUsers(deviceUsers);
-                    break;
-                }
-            }
-            
-            delete users[userId];
-            await saveUsers(users);
-            
-            await database.ref('stats/' + userId).remove();
-            
-            const keys = Object.keys(localStorage);
-            keys.forEach(k => {
-                if (k.startsWith('timer_start_' + userId + '_')) {
-                    localStorage.removeItem(k);
-                }
-            });
-            
-            renderUserList();
-            renderDeviceList();
-            renderStats();
-            showToast('🗑️ Përdoruesi u fshi!', 'success');
+    try {
+        const callNdryshoPin = firebase.app().functions('europe-west1').httpsCallable('ndryshoPinServer');
+        await callNdryshoPin({
+            adminPin: currentUserData._adminPin,
+            targetUserId: userId,
+            newPin: newPin
+        });
+
+        if (userId === ADMIN_ID) {
+            currentUserData._adminPin = newPin;
+            showToast('✅ PIN-i i Admin-it u ndryshua!', 'success');
+        } else {
+            showToast('✅ PIN-i u ndryshua!', 'success');
         }
+        renderUserList();
+    } catch (error) {
+        console.error('Gabim në ndryshimin e PIN-it:', error);
+        if (error.code === 'already-exists') {
+            showToast('❌ Ky PIN është në përdorim!', 'error');
+        } else {
+            showToast('❌ Gabim në ndryshimin e PIN-it!', 'error');
+        }
+    }
+}
+
+       async function fshijPerdorues(userId) {
+    if (userId === ADMIN_ID) {
+        showToast('❌ Nuk mund të fshini admin-in!', 'error');
+        return;
+    }
+    if (!confirm('A jeni i sigurt që doni të fshini këtë përdorues?')) return;
+
+    try {
+        const callFshijPerdorues = firebase.app().functions('europe-west1').httpsCallable('fshijPerdoruesServer');
+        await callFshijPerdorues({
+            adminPin: currentUserData._adminPin,
+            targetUserId: userId
+        });
+
+        const keys = Object.keys(localStorage);
+        keys.forEach(k => {
+            if (k.startsWith('timer_start_' + userId + '_')) {
+                localStorage.removeItem(k);
+            }
+        });
+
+        renderUserList();
+        renderDeviceList();
+        renderStats();
+        showToast('🗑️ Përdoruesi u fshi!', 'success');
+    } catch (error) {
+        console.error('Gabim në fshirjen e përdoruesit:', error);
+        showToast('❌ Gabim në fshirjen e përdoruesit!', 'error');
+    }
+}
 
         async function unlockUser(userId) {
-            const users = await getUsers();
-            if (users[userId]) {
-                users[userId].locked = false;
-                users[userId].attempts = 0;
-                await saveUsers(users);
-                renderUserList();
-                showToast('🔓 Përdoruesi ' + users[userId].name + ' u zhbllokua!', 'success');
-            }
-        }
+    try {
+        const callUnlockUser = firebase.app().functions('europe-west1').httpsCallable('unlockUserServer');
+        await callUnlockUser({
+            adminPin: currentUserData._adminPin,
+            targetUserId: userId
+        });
 
-        async function shtoPerdorues() {
-            const nameInput = document.getElementById('newUserName');
-            const pinInput = document.getElementById('newUserPin');
-            if (!nameInput || !pinInput) {
-                showToast('❌ Gabim: Inputet nuk u gjetën!', 'error');
-                return;
-            }
-            const name = nameInput.value.trim();
-            const pin = pinInput.value.trim();
-            if (!name) {
-                showToast('❌ Shkruani emrin e përdoruesit!', 'error');
-                nameInput.focus();
-                return;
-            }
-            if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
-                showToast('❌ PIN-i duhet të ketë 6 shifra!', 'error');
-                pinInput.focus();
-                return;
-            }
-            
-            let users = await getUsers();
-            for (const [id, data] of Object.entries(users)) {
-                if (data.pin === pin) {
-                    showToast('❌ Ky PIN është në përdorim!', 'error');
-                    pinInput.focus();
-                    return;
-                }
-            }
-            
-            let newId = 'user' + (Object.keys(users).length + 1);
-            while (users[newId]) {
-                newId = 'user' + (parseInt(newId.replace('user', '')) + 1);
-            }
-            const avatar = name.charAt(0).toUpperCase();
-            users[newId] = {
-                name: name,
-                pin: pin,
-                avatar: avatar,
-                count: 0,
-                totalSeconds: 0,
-                lastTime: null,
-                locked: false,
-                attempts: 0
-            };
-            await saveUsers(users);
+        renderUserList();
+        showToast('🔓 Përdoruesi u zhbllokua!', 'success');
+    } catch (error) {
+        console.error('Gabim në zhbllokimin e përdoruesit:', error);
+        showToast('❌ Gabim në zhbllokimin e përdoruesit!', 'error');
+    }
+}
 
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let prefix = name.substring(0, 3).toUpperCase();
-            let code = prefix;
-            for (let i = 0; i < 4; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            const deviceUsers = await getDeviceUsers();
-            deviceUsers[code] = {
-                emri: name,
-                pin: pin,
-                kod: code,
-                pajisje: [],
-                maxPajisje: MAX_PAJISJE_PER_PERDORUES,
-                roli: 'user'
-            };
-            await saveDeviceUsers(deviceUsers);
-            
-            nameInput.value = '';
-            pinInput.value = '';
-            renderUserList();
-            renderDeviceList();
-            renderStats();
-            showToast('✅ Përdoruesi ' + name + ' u shtua! Kodi: ' + code, 'success');
+       async function shtoPerdorues() {
+    const nameInput = document.getElementById('newUserName');
+    const pinInput = document.getElementById('newUserPin');
+    if (!nameInput || !pinInput) {
+        showToast('❌ Gabim: Inputet nuk u gjetën!', 'error');
+        return;
+    }
+    const name = nameInput.value.trim();
+    const pin = pinInput.value.trim();
+    if (!name) {
+        showToast('❌ Shkruani emrin e përdoruesit!', 'error');
+        nameInput.focus();
+        return;
+    }
+    if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+        showToast('❌ PIN-i duhet të ketë 6 shifra!', 'error');
+        pinInput.focus();
+        return;
+    }
+
+    try {
+        const callShtoPerdorues = firebase.app().functions('europe-west1').httpsCallable('shtoPerdoruesServer');
+        const result = await callShtoPerdorues({
+            adminPin: currentUserData._adminPin,
+            name: name,
+            newPin: pin
+        });
+
+        nameInput.value = '';
+        pinInput.value = '';
+        renderUserList();
+        renderDeviceList();
+        renderStats();
+        showToast('✅ Përdoruesi ' + name + ' u shtua! Kodi: ' + result.data.code, 'success');
+    } catch (error) {
+        console.error('Gabim në shtimin e përdoruesit:', error);
+        if (error.code === 'already-exists') {
+            showToast('❌ Ky PIN është në përdorim!', 'error');
+        } else {
+            showToast('❌ Gabim në shtimin e përdoruesit!', 'error');
         }
+    }
+}
 
         async function fshijPajisje(userCode, deviceFingerprint) {
             if (!confirm('⚠️ A jeni i sigurt që doni të fshini këtë pajisje?')) return;
