@@ -1185,7 +1185,7 @@ currentUserData = {
                 </div>
             </div>
             <div class="user-actions">
-                <input type="text" class="pin-edit" value="${data.pin}" maxlength="${PIN_GJATESIA}" pattern="[0-9]*" data-id="${id}" ${isLocked && !isAdminUser ? 'disabled' : ''}>
+                <input type="text" class="pin-edit" value="" placeholder="PIN i ri (6 shifra)" maxlength="${PIN_GJATESIA}" pattern="[0-9]*" data-id="${id}" ${isLocked && !isAdminUser ? 'disabled' : ''}>
                 <button class="btn-save" onclick="ndryshoPin('${id}')">💾</button>
                 ${!isAdminUser ? (isLocked ? `<button class="btn-unlock" onclick="unlockUser('${id}')">🔓 Zhblloko</button>` : '') : ''}
                 ${!isAdminUser ? `<button class="btn-delete-user" onclick="fshijPerdorues('${id}')">🗑️</button>` : ''}
