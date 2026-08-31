@@ -82,7 +82,7 @@
         .prov-card .card-desc { font-size: 14px; color: #6b7a8a; line-height: 1.5; margin-bottom: 14px; }
         .prov-card .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e8edf2; padding-top: 14px; }
         .prov-card .card-footer .questions { font-size: 13px; color: #6b7a8a; }
-        .prov-card .card-footer .btn-start { background: #003057; color: white; border: none; padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.3s; text-decoration: none; }
+        .prov-card .card-footer .btn-start { background: #003057; color: white; border: none; padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background 0.3s; text-decoration: none; }
         .prov-card .card-footer .btn-start:hover { background: #002244; }
         .prov-card .card-opened { font-size: 12px; color: #6b7a8a; margin-top: 6px; }
         
@@ -1032,18 +1032,18 @@ showPinError('⏱️ ' + displayMsg);
                 });
 
                 card.innerHTML = `
-                    <div class="card-header">
-                        <span class="card-number">Prov ${prov.id}</span>
-                        <span class="card-status">✅ I disponueshëm</span>
-                    </div>
-                    <div class="card-title">${prov.title}</div>
-                    <div class="card-desc">${prov.desc}</div>
-                    <div class="card-footer">
-                        <span class="questions">📝 ${prov.questions} pyetje</span>
-                        <span class="btn-start">Fillo Provën →</span>
-                    </div>
-                    <div class="card-opened">${openedText}</div>
-                `;
+    <div class="card-title">${prov.title}</div>
+    <div class="card-desc">${prov.desc}</div>
+    <div class="card-footer">
+        <span class="questions">📝 ${prov.questions} pyetje</span>
+        <span class="card-status">✅ I disponueshëm</span>
+    </div>
+    <div class="card-footer" style="margin-top: 8px; border-top: none; padding-top: 0;">
+        <span></span>
+        <span class="btn-start">Fillo Provën →</span>
+    </div>
+    <div class="card-opened">${openedText}</div>
+`;
                 grid.appendChild(card);
             });
 
