@@ -99,25 +99,26 @@
 /* Dizajni i ri për Butonat me Grid */
 /* Dizajn i pastër dhe modern për butonat */
 /* Renditja e re dhe e pastër për butonat */
+/* Containeri kryesor i butonave */
 .nav-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     max-width: 480px;
-    margin: 25px auto;
+    margin: 20px auto;
     padding: 0 10px;
 }
 
 .action-btn {
     padding: 12px 20px;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: bold;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
+    transition: opacity 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -125,45 +126,38 @@
     opacity: 0.9;
 }
 
-/* 1. Mbrapa dhe Vazhdo qëndrojnë në një rresht sipër */
+/* Mbrapa dhe Vazhdo në rreshtin e parë */
 #prev-btn { 
     background-color: #7f8c8d; 
     flex: 1 1 40%; 
-    order: 1; 
 }
 #next-btn { 
     background-color: #2980b9; 
     flex: 1 1 40%; 
-    order: 2; 
 }
 
-/* 2. Dorëzo Testin del në rresht më vete (poshtë tyre) */
+/* Dorëzo Testin në rreshtin e dytë (vetëm gjatë testit) */
 #submit-btn { 
     background-color: #27ae60; 
     width: 100%; 
-    order: 3; 
     margin-top: 5px; 
 }
 
-/* 3. Shiko Gabimet del te rezultatet */
+/* Butonat pas dorëzimit: Shiko Gabimet (majtas) & Provo Përsëri (djathtas) */
 #review-btn { 
     background-color: #8e44ad; 
-    width: 100%; 
-    order: 4; 
+    flex: 1 1 40%; 
 }
-
-/* 4. Provo përsëri del te rezultatet */
 #reset-btn { 
     background-color: #e67e22; 
-    width: 100%; 
-    order: 5; 
+    flex: 1 1 40%; 
 }
 
-/* Fshehim seksionin e rezultatit derisa të shtypet "Dorëzo Testin" */
 #result-section {
     display: none;
     max-width: 480px;
-    margin: 15px auto;
+    margin: 20px auto;
+    text-align: center;
 }
 
         .action-btn:hover { opacity: 0.9; }
@@ -248,18 +242,16 @@
 
     <div id="quiz-container"></div>
 
-    <div class="nav-buttons" id="main-nav-buttons">
+<div class="nav-buttons" id="main-nav-buttons">
         <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
         <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
         <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
         <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
+        <button class="action-btn" id="reset-btn" onclick="provoPerseri()" style="display: none;">Provo përsëri</button>
     </div>
 
     <div id="result-section">
         <div id="result-display"></div>
-        <div>
-            <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
-        </div>
     </div>
 
     <div id="review-container"></div>
