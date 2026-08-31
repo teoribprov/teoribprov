@@ -22,43 +22,20 @@
             text-align: center;
             color: #2c3e50;
         }
-        /* Top Bar Responsive */
         .top-bar {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
             background: #fff;
-            padding: 12px 15px;
+            padding: 10px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-weight: bold;
         }
-        @media (min-width: 600px) {
-            .top-bar {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-        }
-        .top-bar-left {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            width: 100%;
-        }
-        @media (min-width: 600px) {
-            .top-bar-left {
-                width: auto;
-                justify-content: start;
-                gap: 15px;
-            }
-        }
         #timer {
             color: #c0392b;
-            font-size: 16px;
-            text-align: center;
+            font-size: 18px;
         }
         .question-box {
             background: #fff;
@@ -119,49 +96,23 @@
             border-color: #f5c6cb !important;
         }
 
-    /* Navigation Buttons (Mbrapa / Vazhdo) */
-        .nav-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            max-width: 500px;
-            margin: 0 auto 15px auto;
+        .nav-buttons {
+            text-align: center;
+            margin-bottom: 20px;
         }
-        .nav-btn {
-            padding: 14px;
+        .action-btn {
+            padding: 10px 20px;
             font-size: 15px;
             font-weight: bold;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            text-align: center;
+            transition: background 0.2s;
+            margin: 0 5px;
         }
         #prev-btn { background-color: #7f8c8d; }
         #next-btn { background-color: #2980b9; }
-
-        /* Secondary Actions (Dorëzo, Provo përsëri, Gabimet) */
-        .action-flex {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .action-btn {
-            flex: 1 1 45%;
-            min-width: 140px;
-            padding: 12px 15px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
         #submit-btn { background-color: #27ae60; }
         #review-btn { background-color: #8e44ad; display: none; }
         #reset-btn { background-color: #e67e22; }
@@ -248,19 +199,16 @@
 
     <div id="quiz-container"></div>
 
-    <div class="nav-grid">
-        <button class="nav-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
-        <button class="nav-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
-    </div>
-
-    <div class="action-flex">
+    <div class="nav-buttons" id="main-nav-buttons">
+        <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
+        <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
         <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
         <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
     </div>
 
     <div id="result-section">
         <div id="result-display"></div>
-        <div class="action-flex">
+        <div>
             <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
         </div>
     </div>
