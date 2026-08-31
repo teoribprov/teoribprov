@@ -98,19 +98,18 @@
 
 /* Dizajni i ri për Butonat me Grid */
 /* Dizajn i pastër dhe modern për butonat */
+/* Renditja e re dhe e pastër për butonat */
 .nav-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 12px;
-    max-width: 600px;
+    max-width: 480px;
     margin: 25px auto;
     padding: 0 10px;
 }
 
 .action-btn {
-    flex: 1 1 140px; /* Butonat rreshtohen anë për anë dhe përshtaten në telefon */
-    max-width: 200px;
     padding: 12px 20px;
     font-size: 15px;
     font-weight: 600;
@@ -118,24 +117,53 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .action-btn:hover {
     opacity: 0.9;
-    transform: translateY(-1px);
 }
 
-#prev-btn { background-color: #7f8c8d; }
-#next-btn { background-color: #2980b9; }
-#submit-btn { background-color: #27ae60; }
-#review-btn { background-color: #8e44ad; }
-#reset-btn { background-color: #e67e22; }
+/* 1. Mbrapa dhe Vazhdo qëndrojnë në një rresht sipër */
+#prev-btn { 
+    background-color: #7f8c8d; 
+    flex: 1 1 40%; 
+    order: 1; 
+}
+#next-btn { 
+    background-color: #2980b9; 
+    flex: 1 1 40%; 
+    order: 2; 
+}
 
-/* Rregullim special për seksionin e rezultatit */
-#result-section .nav-buttons {
-    margin-top: 15px;
+/* 2. Dorëzo Testin del në rresht më vete (poshtë tyre) */
+#submit-btn { 
+    background-color: #27ae60; 
+    width: 100%; 
+    order: 3; 
+    margin-top: 5px; 
+}
+
+/* 3. Shiko Gabimet del te rezultatet */
+#review-btn { 
+    background-color: #8e44ad; 
+    width: 100%; 
+    order: 4; 
+}
+
+/* 4. Provo përsëri del te rezultatet */
+#reset-btn { 
+    background-color: #e67e22; 
+    width: 100%; 
+    order: 5; 
+}
+
+/* Fshehim seksionin e rezultatit derisa të shtypet "Dorëzo Testin" */
+#result-section {
+    display: none;
+    max-width: 480px;
+    margin: 15px auto;
 }
 
         .action-btn:hover { opacity: 0.9; }
