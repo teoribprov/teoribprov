@@ -248,16 +248,19 @@
 
     <div id="quiz-container"></div>
 
-    <div class="nav-buttons" id="main-nav-buttons">
-        <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
-        <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
+    <div class="nav-grid">
+        <button class="nav-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
+        <button class="nav-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
+    </div>
+
+    <div class="action-flex">
         <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
         <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
     </div>
 
     <div id="result-section">
         <div id="result-display"></div>
-        <div>
+        <div class="action-flex">
             <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
         </div>
     </div>
