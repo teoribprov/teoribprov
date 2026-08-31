@@ -22,20 +22,43 @@
             text-align: center;
             color: #2c3e50;
         }
+        /* Top Bar Responsive */
         .top-bar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 12px;
             background: #fff;
-            padding: 10px 20px;
+            padding: 12px 15px;
             border-radius: 8px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-weight: bold;
         }
+        @media (min-width: 600px) {
+            .top-bar {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+        }
+        @media (min-width: 600px) {
+            .top-bar-left {
+                width: auto;
+                justify-content: start;
+                gap: 15px;
+            }
+        }
         #timer {
             color: #c0392b;
-            font-size: 18px;
+            font-size: 16px;
+            text-align: center;
         }
         .question-box {
             background: #fff;
@@ -96,23 +119,49 @@
             border-color: #f5c6cb !important;
         }
 
-        .nav-buttons {
-            text-align: center;
-            margin-bottom: 20px;
+    /* Navigation Buttons (Mbrapa / Vazhdo) */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto 15px auto;
         }
-        .action-btn {
-            padding: 10px 20px;
+        .nav-btn {
+            padding: 14px;
             font-size: 15px;
             font-weight: bold;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
-            margin: 0 5px;
+            width: 100%;
+            text-align: center;
         }
         #prev-btn { background-color: #7f8c8d; }
         #next-btn { background-color: #2980b9; }
+
+        /* Secondary Actions (Dorëzo, Provo përsëri, Gabimet) */
+        .action-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .action-btn {
+            flex: 1 1 45%;
+            min-width: 140px;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
         #submit-btn { background-color: #27ae60; }
         #review-btn { background-color: #8e44ad; display: none; }
         #reset-btn { background-color: #e67e22; }
