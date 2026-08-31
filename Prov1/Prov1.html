@@ -96,26 +96,33 @@
             border-color: #f5c6cb !important;
         }
 
-        .nav-buttons {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .action-btn {
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin: 0 5px;
-        }
-        #prev-btn { background-color: #7f8c8d; }
-        #next-btn { background-color: #2980b9; }
-        #submit-btn { background-color: #27ae60; }
-        #review-btn { background-color: #8e44ad; display: none; }
-        #reset-btn { background-color: #e67e22; }
+/* Dizajni i ri për Butonat me Grid */
+.nav-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.action-btn {
+    padding: 12px;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+}
+
+#prev-btn { background-color: #7f8c8d; }
+#next-btn { background-color: #2980b9; }
+#submit-btn { background-color: #27ae60; }
+#review-btn { background-color: #8e44ad; display: none; }
+#reset-btn { background-color: #e67e22; grid-column: span 2; }
 
         .action-btn:hover { opacity: 0.9; }
 
