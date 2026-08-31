@@ -99,6 +99,7 @@
        /* Containeri kryesor i butonave të navigimit */
 /* Butonat gjatë testit (Mbrapa, Vazhdo, Dorëzo) */
 /* Containeri kryesor i butonave të navigimit */
+/* Layout-i i butonave */
 .nav-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -123,39 +124,22 @@
     opacity: 0.9;
 }
 
+/* Gjatë testit: Mbrapa dhe Vazhdo rrinë lart */
 #prev-btn { background-color: #7f8c8d; flex: 1 1 40%; }
 #next-btn { background-color: #2980b9; flex: 1 1 40%; }
+
+/* Gjatë testit: Dorëzo Testin rri poshtë vetëm */
 #submit-btn { background-color: #27ae60; width: 100%; margin-top: 5px; }
 
-/* Fshehim me forcë butonat e rezultatit sa herë që seksioni i rezultatit nuk është i dukshëm */
-#result-section:not([style*="display: block"]) {
-    display: none !important;
-}
+/* Fshehim me CSS butonat e rezultatit kur bëhet testi */
+#review-btn { background-color: #8e44ad; flex: 1 1 40%; display: none; }
+#reset-btn { background-color: #e67e22; flex: 1 1 40%; display: none; }
 
-#main-nav-buttons #reset-btn,
-#main-nav-buttons #review-btn {
-    display: none !important;
-}
-
-/* Seksioni i rezultatit (Godkänt/Ej godkänt) */
+/* Kutia e rezultatit */
 #result-section {
     max-width: 480px;
     margin: 20px auto;
     text-align: center;
-}
-
-/* Butonat pas dorëzimit (Shiko Gabimet & Provo Përsëri) */
-.result-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.result-buttons #review-btn,
-.result-buttons #reset-btn {
-    display: inline-block !important;
-    flex: 1;
 }
 
 #review-btn { background-color: #8e44ad; }
@@ -250,6 +234,12 @@
     <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
     <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
     <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
+    <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
+    <button class="action-btn" id="reset-btn" onclick="provoPerseri()">Provo përsëri</button>
+</div>
+
+<div id="result-section">
+    <div id="result-display"></div>
 </div>
 
 <div id="result-section">
