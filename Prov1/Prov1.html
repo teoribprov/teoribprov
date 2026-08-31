@@ -98,6 +98,7 @@
 
        /* Containeri kryesor i butonave të navigimit */
 /* Butonat gjatë testit (Mbrapa, Vazhdo, Dorëzo) */
+/* Containeri kryesor i butonave të navigimit */
 .nav-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -115,11 +116,26 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.action-btn:hover {
+    opacity: 0.9;
 }
 
 #prev-btn { background-color: #7f8c8d; flex: 1 1 40%; }
 #next-btn { background-color: #2980b9; flex: 1 1 40%; }
 #submit-btn { background-color: #27ae60; width: 100%; margin-top: 5px; }
+
+/* Fshehim me forcë butonat e rezultatit sa herë që seksioni i rezultatit nuk është i dukshëm */
+#result-section:not([style*="display: block"]) {
+    display: none !important;
+}
+
+#main-nav-buttons #reset-btn,
+#main-nav-buttons #review-btn {
+    display: none !important;
+}
 
 /* Seksioni i rezultatit (Godkänt/Ej godkänt) */
 #result-section {
@@ -128,13 +144,22 @@
     text-align: center;
 }
 
-/* Butonat pasi klikon Dorëzo (Shiko Gabimet & Provo Përsëri) */
+/* Butonat pas dorëzimit (Shiko Gabimet & Provo Përsëri) */
 .result-buttons {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 15px;
 }
+
+.result-buttons #review-btn,
+.result-buttons #reset-btn {
+    display: inline-block !important;
+    flex: 1;
+}
+
+#review-btn { background-color: #8e44ad; }
+#reset-btn { background-color: #e67e22; }
 
 #review-btn { background-color: #8e44ad; flex: 1; display: none; /* JS do e shfaqë automatikisht */ }
 #reset-btn { background-color: #e67e22; flex: 1; }
