@@ -97,6 +97,7 @@
         }
 
        /* Containeri kryesor i butonave të navigimit */
+/* Butonat gjatë testit (Mbrapa, Vazhdo, Dorëzo) */
 .nav-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -104,7 +105,6 @@
     gap: 10px;
     max-width: 480px;
     margin: 25px auto;
-    padding: 0 10px;
 }
 
 .action-btn {
@@ -115,46 +115,29 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: opacity 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* 1. Mbrapa dhe Vazhdo rrinë lart anë për anë */
-#prev-btn { 
-    background-color: #7f8c8d; 
-    flex: 1 1 40%; 
-}
-#next-btn { 
-    background-color: #2980b9; 
-    flex: 1 1 40%; 
-}
+#prev-btn { background-color: #7f8c8d; flex: 1 1 40%; }
+#next-btn { background-color: #2980b9; flex: 1 1 40%; }
+#submit-btn { background-color: #27ae60; width: 100%; margin-top: 5px; }
 
-/* 2. Dorëzo Testin rri vetëm poshtë tyre */
-#submit-btn { 
-    background-color: #27ae60; 
-    width: 100%; 
-    margin-top: 5px; 
-}
-
-/* 3. Shiko Gabimet (fshihet gjatë testit) */
-#review-btn { 
-    background-color: #8e44ad; 
-    flex: 1 1 40%;
-    display: none !important;
-}
-
-/* 4. Seksioni i Rezultatit dhe Butoni Provo Përsëri */
+/* Seksioni i rezultatit (Godkänt/Ej godkänt) */
 #result-section {
     max-width: 480px;
     margin: 20px auto;
     text-align: center;
 }
 
-#reset-btn { 
-    background-color: #e67e22; 
-    flex: 1 1 45%;
-    width: 100%;
+/* Butonat pasi klikon Dorëzo (Shiko Gabimet & Provo Përsëri) */
+.result-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
 }
+
+#review-btn { background-color: #8e44ad; flex: 1; display: none; /* JS do e shfaqë automatikisht */ }
+#reset-btn { background-color: #e67e22; flex: 1; }
 
         .action-btn:hover { opacity: 0.9; }
 
@@ -238,19 +221,19 @@
 
     <div id="quiz-container"></div>
 
-    <div class="nav-buttons" id="main-nav-buttons">
-        <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
-        <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
-        <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
-        <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
-    </div>
+   <div class="nav-buttons" id="main-nav-buttons">
+    <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
+    <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
+    <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
+</div>
 
-    <div id="result-section">
-        <div id="result-display"></div>
-        <div>
-            <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
-        </div>
+<div id="result-section">
+    <div id="result-display"></div>
+    <div class="result-buttons">
+        <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
+        <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
     </div>
+</div>
 
     <div id="review-container"></div>
 
