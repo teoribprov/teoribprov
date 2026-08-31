@@ -28,6 +28,7 @@
         .pin-box .pin-input-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
         .pin-box .pin-input-group input { width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: 700; border: 2px solid #d0d7de; border-radius: 10px; outline: none; transition: border 0.3s, box-shadow 0.3s; background: #f8f9fa; color: #003057; }
         .pin-box .pin-input-group input:focus { border-color: #003057; box-shadow: 0 0 0 4px rgba(0,48,87,0.15); }
+        .pin-box .pin-input-group input { -webkit-text-security: disc; text-security: disc; }
         .pin-box .pin-input-group input.error { border-color: #dc3545; animation: shake 0.4s ease; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .pin-box .pin-error { color: #dc3545; font-size: 13px; min-height: 20px; margin-bottom: 12px; }
@@ -228,12 +229,12 @@
             <h2>Testet e Patentë-Shoferit</h2>
             <p id="pinSubtitle">Shkruani PIN-in tuaj (6 shifra)</p>
             <div class="pin-input-group" id="pinInputGroup">
-                <input type="password" maxlength="1" class="pin-digit" data-index="0" autofocus>
-                <input type="password" maxlength="1" class="pin-digit" data-index="1">
-                <input type="password" maxlength="1" class="pin-digit" data-index="2">
-                <input type="password" maxlength="1" class="pin-digit" data-index="3">
-                <input type="password" maxlength="1" class="pin-digit" data-index="4">
-                <input type="password" maxlength="1" class="pin-digit" data-index="5">
+                <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="0" autofocus>
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="1">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="2">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="3">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="4">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="5">
             </div>
             <div class="pin-error" id="pinError"></div>
             <div class="user-info" id="userInfo"></div>
@@ -1775,7 +1776,11 @@ try {
         });
 
         window.addEventListener('pageshow', function(event) {
-            setTimeout(function() {
+    if (event.persisted) {
+        window.location.reload();
+        return;
+    }
+    setTimeout(function() {
                 kontrolloTeGjithaKohet();
                 if (currentUserId && currentUserData) {
                     resetInactivityTimer();
