@@ -1034,13 +1034,12 @@ showPinError('⏱️ ' + displayMsg);
                 card.innerHTML = `
     <div class="card-title">${prov.title}</div>
     <div class="card-desc">${prov.desc}</div>
-    <div class="card-footer">
-        <span class="questions">📝 ${prov.questions} pyetje</span>
-        <span class="card-status">✅ I disponueshëm</span>
+    <div class="card-footer" style="flex-direction: column; align-items: flex-end; gap: 6px;">
+        <span class="btn-start" style="font-size: 15px; padding: 8px 18px; border-radius: 20px;">Fillo Provën →</span>
+        <span class="card-status" style="font-size: 11px; padding: 2px 8px; opacity: 0.85;">✅ I disponueshëm</span>
     </div>
-    <div class="card-footer" style="margin-top: 8px; border-top: none; padding-top: 0;">
-        <span></span>
-        <span class="btn-start">Fillo Provën →</span>
+    <div class="card-footer" style="margin-top: 8px; padding-top: 8px;">
+        <span class="questions">📝 ${prov.questions} pyetje</span>
     </div>
     <div class="card-opened">${openedText}</div>
 `;
