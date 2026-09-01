@@ -96,71 +96,46 @@
             border-color: #f5c6cb !important;
         }
 
-       /* Containeri kryesor i butonave të navigimit */
-/* Butonat gjatë testit (Mbrapa, Vazhdo, Dorëzo) */
-/* Containeri kryesor i butonave të navigimit */
-/* Layout-i i butonave */
-/* Layout-i i butonave gjatë testit */
-.nav-buttons {
+        .nav-buttons {
+    max-width: 500px;
+    margin: 0 auto 20px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     gap: 10px;
-    max-width: 480px;
-    margin: 20px auto;
 }
-
+.nav-buttons-row {
+    display: flex;
+    gap: 10px;
+}
+.nav-buttons-row .action-btn {
+    flex: 1;
+}
 .action-btn {
-    padding: 12px 20px;
-    font-size: 15px;
+    padding: 14px 20px;
+    font-size: 16px;
     font-weight: bold;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: background 0.2s;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
-
-.action-btn:hover {
-    opacity: 0.9;
-}
-
-#prev-btn { background-color: #7f8c8d; flex: 1 1 40%; }
-#next-btn { background-color: #2980b9; flex: 1 1 40%; }
-#submit-btn { background-color: #27ae60; width: 100%; margin-top: 5px; }
-
-/* Seksioni i rezultatit - fshihet gjatë testit */
-#result-section {
-    display: none;
-    max-width: 480px;
-    margin: 20px auto;
-    text-align: center;
-}
-
-/* Butonat Shiko Gabimet & Provo Përsëri (anë për anë poshtë rezultatit) */
-.result-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-#review-btn { background-color: #8e44ad; flex: 1; }
-#reset-btn { background-color: #e67e22; flex: 1; }
-
-#review-btn { background-color: #8e44ad; }
-#reset-btn { background-color: #e67e22; }
-
-#review-btn { background-color: #8e44ad; flex: 1; display: none; /* JS do e shfaqë automatikisht */ }
-#reset-btn { background-color: #e67e22; flex: 1; }
+        #prev-btn { background-color: #7f8c8d; }
+        #next-btn { background-color: #2980b9; }
+        #submit-btn { background-color: #27ae60; }
+        #review-btn { background-color: #8e44ad; display: none; }
+        #reset-btn { background-color: #e67e22; }
 
         .action-btn:hover { opacity: 0.9; }
 
-        #result-section {
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 50px;
-        }
+       #result-section {
+    max-width: 500px;
+    margin: 20px auto 50px;
+    text-align: center;
+}
         #result-display {
             display: inline-block;
             margin-bottom: 15px;
@@ -236,19 +211,21 @@
 
     <div id="quiz-container"></div>
 
-  <div class="nav-buttons" id="main-nav-buttons">
-    <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
-    <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
+   <div class="nav-buttons" id="main-nav-buttons">
+    <div class="nav-buttons-row">
+        <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
+        <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
+    </div>
     <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
+    <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
 </div>
 
-<div id="result-section">
-    <div id="result-display"></div>
-    <div class="result-buttons">
-        <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
-        <button class="action-btn" id="reset-btn" onclick="provoPerseri()">Provo përsëri</button>
+    <div id="result-section">
+        <div id="result-display"></div>
+        <div>
+            <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
+        </div>
     </div>
-</div>
 
     <div id="review-container"></div>
 
