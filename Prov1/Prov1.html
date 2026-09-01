@@ -902,7 +902,7 @@
         function kthehuTeRezultati() {
             document.getElementById('review-container').style.display = 'none';
             document.getElementById('quiz-container').style.display = 'block';
-            document.getElementById('main-nav-buttons').style.display = 'block';
+            document.getElementById('main-nav-buttons').style.display = 'flex';
             
             document.querySelectorAll('.question-box').forEach(b => b.classList.remove('active'));
             document.getElementById('question-0').classList.add('active');
@@ -914,7 +914,7 @@
             document.getElementById('result-display').textContent = '';
             document.getElementById('result-display').className = '';
             document.getElementById('review-btn').style.display = 'none';
-            document.getElementById('main-nav-buttons').style.display = 'block';
+            document.getElementById('main-nav-buttons').style.display = 'flex';
             
             // Krijon një renditje krejtësisht të re (shuffle) për pyetjet dhe opsionet
             inicializoTestin();
