@@ -131,10 +131,15 @@
 
         .action-btn:hover { opacity: 0.9; }
 
-       #result-section {
+      #result-section {
+    display: none;
     max-width: 500px;
     margin: 20px auto 50px;
     text-align: center;
+}
+#result-section:has(#result-display.passed),
+#result-section:has(#result-display.failed) {
+    display: block;
 }
         #result-display {
             display: inline-block;
