@@ -100,13 +100,14 @@
 /* Butonat gjatë testit (Mbrapa, Vazhdo, Dorëzo) */
 /* Containeri kryesor i butonave të navigimit */
 /* Layout-i i butonave */
+/* Layout-i i butonave gjatë testit */
 .nav-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     max-width: 480px;
-    margin: 25px auto;
+    margin: 20px auto;
 }
 
 .action-btn {
@@ -124,23 +125,28 @@
     opacity: 0.9;
 }
 
-/* Gjatë testit: Mbrapa dhe Vazhdo rrinë lart */
 #prev-btn { background-color: #7f8c8d; flex: 1 1 40%; }
 #next-btn { background-color: #2980b9; flex: 1 1 40%; }
-
-/* Gjatë testit: Dorëzo Testin rri poshtë vetëm */
 #submit-btn { background-color: #27ae60; width: 100%; margin-top: 5px; }
 
-/* Fshehim me CSS butonat e rezultatit kur bëhet testi */
-#review-btn { background-color: #8e44ad; flex: 1 1 40%; display: none; }
-#reset-btn { background-color: #e67e22; flex: 1 1 40%; display: none; }
-
-/* Kutia e rezultatit */
+/* Seksioni i rezultatit - fshihet gjatë testit */
 #result-section {
+    display: none;
     max-width: 480px;
     margin: 20px auto;
     text-align: center;
 }
+
+/* Butonat Shiko Gabimet & Provo Përsëri (anë për anë poshtë rezultatit) */
+.result-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#review-btn { background-color: #8e44ad; flex: 1; }
+#reset-btn { background-color: #e67e22; flex: 1; }
 
 #review-btn { background-color: #8e44ad; }
 #reset-btn { background-color: #e67e22; }
@@ -230,23 +236,17 @@
 
     <div id="quiz-container"></div>
 
-   <div class="nav-buttons" id="main-nav-buttons">
+  <div class="nav-buttons" id="main-nav-buttons">
     <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
     <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
     <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
-    <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
-    <button class="action-btn" id="reset-btn" onclick="provoPerseri()">Provo përsëri</button>
-</div>
-
-<div id="result-section">
-    <div id="result-display"></div>
 </div>
 
 <div id="result-section">
     <div id="result-display"></div>
     <div class="result-buttons">
         <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
-        <button id="reset-btn" class="action-btn" onclick="provoPerseri()">Provo përsëri</button>
+        <button class="action-btn" id="reset-btn" onclick="provoPerseri()">Provo përsëri</button>
     </div>
 </div>
 
