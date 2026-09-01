@@ -28,6 +28,7 @@
         .pin-box .pin-input-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
         .pin-box .pin-input-group input { width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: 700; border: 2px solid #d0d7de; border-radius: 10px; outline: none; transition: border 0.3s, box-shadow 0.3s; background: #f8f9fa; color: #003057; }
         .pin-box .pin-input-group input:focus { border-color: #003057; box-shadow: 0 0 0 4px rgba(0,48,87,0.15); }
+        .pin-box .pin-input-group input { -webkit-text-security: disc; text-security: disc; }
         .pin-box .pin-input-group input.error { border-color: #dc3545; animation: shake 0.4s ease; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .pin-box .pin-error { color: #dc3545; font-size: 13px; min-height: 20px; margin-bottom: 12px; }
@@ -81,7 +82,7 @@
         .prov-card .card-desc { font-size: 14px; color: #6b7a8a; line-height: 1.5; margin-bottom: 14px; }
         .prov-card .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e8edf2; padding-top: 14px; }
         .prov-card .card-footer .questions { font-size: 13px; color: #6b7a8a; }
-        .prov-card .card-footer .btn-start { background: #003057; color: white; border: none; padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.3s; text-decoration: none; }
+        .prov-card .card-footer .btn-start { background: #003057; color: white; border: none; padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background 0.3s; text-decoration: none; }
         .prov-card .card-footer .btn-start:hover { background: #002244; }
         .prov-card .card-opened { font-size: 12px; color: #6b7a8a; margin-top: 6px; }
         
@@ -228,12 +229,12 @@
             <h2>Testet e Patentë-Shoferit</h2>
             <p id="pinSubtitle">Shkruani PIN-in tuaj (6 shifra)</p>
             <div class="pin-input-group" id="pinInputGroup">
-                <input type="password" maxlength="1" class="pin-digit" data-index="0" autofocus>
-                <input type="password" maxlength="1" class="pin-digit" data-index="1">
-                <input type="password" maxlength="1" class="pin-digit" data-index="2">
-                <input type="password" maxlength="1" class="pin-digit" data-index="3">
-                <input type="password" maxlength="1" class="pin-digit" data-index="4">
-                <input type="password" maxlength="1" class="pin-digit" data-index="5">
+                <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="0" autofocus>
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="1">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="2">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="3">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="4">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="5">
             </div>
             <div class="pin-error" id="pinError"></div>
             <div class="user-info" id="userInfo"></div>
@@ -1030,19 +1031,18 @@ showPinError('⏱️ ' + displayMsg);
                     if (provData) hapProv(provId, provData.file);
                 });
 
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="card-number">Prov ${prov.id}</span>
-                        <span class="card-status">✅ I disponueshëm</span>
-                    </div>
-                    <div class="card-title">${prov.title}</div>
-                    <div class="card-desc">${prov.desc}</div>
-                    <div class="card-footer">
-                        <span class="questions">📝 ${prov.questions} pyetje</span>
-                        <span class="btn-start">Fillo Provën →</span>
-                    </div>
-                    <div class="card-opened">${openedText}</div>
-                `;
+       card.innerHTML = `
+    <div class="card-title">${prov.title}</div>
+    <div class="card-desc">${prov.desc}</div>
+    <div class="card-footer">
+        <span class="questions">📝 ${prov.questions} pyetje</span>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
+            <span class="btn-start" style="font-size: 12px; padding: 4px 10px; border-radius: 14px;">Fillo Provën →</span>
+            <span class="card-status" style="font-size: 10px; padding: 0; background: none; border: none; color: #16a34a;">✅ I disponueshëm</span>
+        </div>
+    </div>
+    <div class="card-opened">${openedText}</div>
+`;
                 grid.appendChild(card);
             });
 
@@ -1775,7 +1775,11 @@ try {
         });
 
         window.addEventListener('pageshow', function(event) {
-            setTimeout(function() {
+    if (event.persisted) {
+        window.location.reload();
+        return;
+    }
+    setTimeout(function() {
                 kontrolloTeGjithaKohet();
                 if (currentUserId && currentUserData) {
                     resetInactivityTimer();

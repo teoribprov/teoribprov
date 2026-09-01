@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-    <meta charset="UTF-8">
+	<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prov 1</title>
+   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../prov-guard.js"></script>
 	<script src="../security.js"></script>
     <style>
         body {
@@ -92,20 +97,32 @@
         }
 
         .nav-buttons {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .action-btn {
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin: 0 5px;
-        }
+    max-width: 500px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.nav-buttons-row {
+    display: flex;
+    gap: 10px;
+}
+.nav-buttons-row .action-btn {
+    flex: 1;
+}
+.action-btn {
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
         #prev-btn { background-color: #7f8c8d; }
         #next-btn { background-color: #2980b9; }
         #submit-btn { background-color: #27ae60; }
@@ -114,11 +131,16 @@
 
         .action-btn:hover { opacity: 0.9; }
 
-        #result-section {
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 50px;
-        }
+      #result-section {
+    display: none;
+    max-width: 500px;
+    margin: 20px auto 50px;
+    text-align: center;
+}
+#result-section:has(#result-display.passed),
+#result-section:has(#result-display.failed) {
+    display: block;
+}
         #result-display {
             display: inline-block;
             margin-bottom: 15px;
@@ -194,12 +216,14 @@
 
     <div id="quiz-container"></div>
 
-    <div class="nav-buttons" id="main-nav-buttons">
+   <div class="nav-buttons" id="main-nav-buttons">
+    <div class="nav-buttons-row">
         <button class="action-btn" id="prev-btn" onclick="ndryshoPyetjen(-1)">Mbrapa</button>
         <button class="action-btn" id="next-btn" onclick="ndryshoPyetjen(1)">Vazhdo</button>
-        <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
-        <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
     </div>
+    <button class="action-btn" id="submit-btn" onclick="shfaqRezultatin()">Dorëzo Testin</button>
+    <button class="action-btn" id="review-btn" onclick="shikoGabimet()">Shiko Gabimet</button>
+</div>
 
     <div id="result-section">
         <div id="result-display"></div>
@@ -878,7 +902,7 @@
         function kthehuTeRezultati() {
             document.getElementById('review-container').style.display = 'none';
             document.getElementById('quiz-container').style.display = 'block';
-            document.getElementById('main-nav-buttons').style.display = 'block';
+            document.getElementById('main-nav-buttons').style.display = 'flex';
             
             document.querySelectorAll('.question-box').forEach(b => b.classList.remove('active'));
             document.getElementById('question-0').classList.add('active');
@@ -890,7 +914,7 @@
             document.getElementById('result-display').textContent = '';
             document.getElementById('result-display').className = '';
             document.getElementById('review-btn').style.display = 'none';
-            document.getElementById('main-nav-buttons').style.display = 'block';
+            document.getElementById('main-nav-buttons').style.display = 'flex';
             
             // Krijon një renditje krejtësisht të re (shuffle) për pyetjet dhe opsionet
             inicializoTestin();
