@@ -229,12 +229,12 @@
             <h2>Testet e Patentë-Shoferit</h2>
             <p id="pinSubtitle">Shkruani PIN-in tuaj (6 shifra)</p>
             <div class="pin-input-group" id="pinInputGroup">
-                <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="0" autofocus>
-<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="1">
-<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="2">
-<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="3">
-<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="4">
-<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="5">
+                <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="0" autocomplete="off" autofocus>
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="1" autocomplete="off">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="2" autocomplete="off">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="3" autocomplete="off">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="4" autocomplete="off">
+<input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" data-index="5" autocomplete="off">
             </div>
             <div class="pin-error" id="pinError"></div>
             <div class="user-info" id="userInfo"></div>
@@ -675,14 +675,18 @@
             userInfo.className = 'user-info ' + type;
         }
 
-        function resetPinInputs() {
-            pinInputs.forEach(input => {
-                input.value = '';
-                input.disabled = false;
-            });
-            pinValue = [];
-            pinInputs[0].focus();
-        }
+        function resetPinInputs(fokusoParen = true) {
+    pinInputs.forEach(input => {
+        input.value = '';
+        input.disabled = false;
+    });
+    pinValue = [];
+    if (fokusoParen) {
+        pinInputs[0].focus();
+    } else {
+        pinInputs.forEach(input => input.blur());
+    }
+}
 
         function updatePinValue() {
             let fullPin = '';
@@ -823,7 +827,7 @@ currentUserData = {
 };
 
         pinOverlay.classList.add('hidden');
-        resetPinInputs();
+        resetPinInputs(false);
         lockIcon.textContent = '🔐';
         document.body.focus();
 
