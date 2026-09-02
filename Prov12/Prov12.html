@@ -1159,10 +1159,71 @@
         }
 
         function shkoTeGabimet() {
-            if (incorrectIdsGlobal.length === 0) return;
-            krijoKuizin(true, incorrectIdsGlobal);
-        }
+    shfaqListenGabimeve();
+}
 
+function shfaqListenGabimeve() {
+    container.innerHTML = '';
+    const gabuara = activeQuestions.filter(q => incorrectIdsGlobal.includes(q.id));
+    const teSaktat = activeQuestions.filter(q => !incorrectIdsGlobal.includes(q.id));
+    function renderNjeRresht(item, index, totali) {
+        const box = document.createElement('div');
+        box.className = 'question-box active';
+        box.style.marginBottom = '15px';
+        if (item.image) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'question-image';
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = "Ilustrim për pyetjen " + item.id;
+            img.onclick = function() { this.classList.toggle('zoomed'); };
+            imgDiv.appendChild(img);
+            box.appendChild(imgDiv);
+        }
+        const title = document.createElement('div');
+        title.className = 'question-title';
+        title.textContent = `${index + 1}/${totali} - ${item.q}`;
+        box.appendChild(title);
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+        const perdoruesiZgjodhi = userAnswers[item.id];
+        item.options.forEach((optText) => {
+            const label = document.createElement('label');
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.disabled = true;
+            if (perdoruesiZgjodhi === optText) radio.checked = true;
+            if (optText === item.correctText) {
+                label.classList.add('correct');
+            } else if (perdoruesiZgjodhi === optText) {
+                label.classList.add('incorrect');
+            }
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(optText));
+            optionsDiv.appendChild(label);
+        });
+        box.appendChild(optionsDiv);
+        container.appendChild(box);
+    }
+    const titulliGabimeve = document.createElement('div');
+    titulliGabimeve.className = 'question-title';
+    titulliGabimeve.style.color = '#c0392b';
+    titulliGabimeve.textContent = `❌ Pyetjet e gabuara (${gabuara.length})`;
+    container.appendChild(titulliGabimeve);
+    gabuara.forEach((item, index) => renderNjeRresht(item, index, gabuara.length));
+    const titulliSakta = document.createElement('div');
+    titulliSakta.className = 'question-title';
+    titulliSakta.style.color = '#27ae60';
+    titulliSakta.style.marginTop = '25px';
+    titulliSakta.textContent = `✅ Pyetjet e sakta (${teSaktat.length})`;
+    container.appendChild(titulliSakta);
+    teSaktat.forEach((item, index) => renderNjeRresht(item, index, teSaktat.length));
+    counterDisplay.textContent = `Gabimet: ${gabuara.length} / Sakta: ${teSaktat.length}`;
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    submitBtn.style.display = 'none';
+    reviewBtn.style.display = 'none';
+}
         function provoPerseri() {
             // [NDRYSHIMI I RI] Kjo rifillon testin dhe e përzien sërish listën e pyetjeve
             krijoKuizin(false);
